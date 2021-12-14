@@ -1,0 +1,63 @@
+cabal-version:      2.4
+name:               refined-extras
+version:            0.1.0.0
+license:            MIT
+license-file:       LICENSE
+tested-with:        GHC ==8.10.7
+copyright:          2021 Thomas Bidne
+author:             Thomas Bidne
+maintainer:         tbidne@prontonmail.com
+homepage:           https://github.com/tbidne/refined-extras/
+bug-reports:        https://github.com/tbidne/refined-extras/issues
+synopsis:           Increased functionality for refined types.
+description:
+  @refined-extras@ provides extra functionality for the @refined@ package.
+
+category:           Refined Types
+extra-source-files:
+  CHANGELOG.md
+  README.md
+
+source-repository head
+  type:     git
+  location: https://github.com/tbidne/refined-extras
+
+common common-exts
+  default-extensions:
+    DataKinds
+    DeriveGeneric
+    DerivingVia
+    FlexibleContexts
+    FlexibleInstances
+    ImportQualifiedPost
+    MultiParamTypeClasses
+    OverloadedStrings
+    ScopedTypeVariables
+    StandaloneKindSignatures
+    TypeApplications
+
+library
+  import:           common-exts
+  exposed-modules:
+    Refined.Predicates.Foldable
+    Refined.Predicates.Text
+
+  build-depends:
+    , base     >=4.14.0.0 && <4.17
+    , refined  ^>=0.6
+    , text     ^>=1.2.3.2
+
+  hs-source-dirs:   src
+  default-language: Haskell2010
+
+test-suite doctest
+  import:           common-exts
+  type:             exitcode-stdio-1.0
+  main-is:          Main.hs
+  build-depends:
+    , base
+    , doctest         >=0.16.3 && <0.21
+    , refined-extras
+
+  hs-source-dirs:   test/doctest
+  default-language: Haskell2010

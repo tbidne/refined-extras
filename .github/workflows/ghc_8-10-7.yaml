@@ -1,0 +1,36 @@
+name: "8.10.7"
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  cabal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup nix
+        uses: cachix/install-nix-action@v12
+        with:
+          nix_path: nixpkgs=https://github.com/NixOS/nixpkgs/archive/b0bf5f888d377dd2f36d90340df6dc9f035aaada.tar.gz
+
+      - name: Compile
+        run: |
+          nix-shell nix/ghc_8-10-7.nix --command \
+            "cabal update && \
+             cabal build --write-ghc-environment-files=always"
+
+      - name: Test
+        run: |
+          nix-shell nix/ghc_8-10-7.nix --command \
+            "cabal update && \
+             cabal build --write-ghc-environment-files=always && \
+             cabal test"

@@ -1,0 +1,7 @@
+cradle:
+  cabal:
+    - path: "./src"
+      component: "lib:refined-extras"
+
+    - path: "./test/doctest"
+      component: "refined-extras:test:doctest"

@@ -1,0 +1,11 @@
+packages: .
+
+package refined
+  flags: -aeson -quickcheck
+
+package refined-extras
+  ghc-options:
+    -Wall -Wcompat -Werror -Widentities
+    -Wincomplete-record-updates -Wincomplete-uni-patterns
+    -Wmissing-home-modules -Wmissing-export-lists -Wpartial-fields
+    -Wredundant-constraints
