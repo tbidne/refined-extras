@@ -1,4 +1,4 @@
--- | Provides predicates for 'Foldable'.
+-- | Predicates for 'Foldable'.
 --
 -- @since 0.1.0.0
 module Refined.Predicates.Foldable
@@ -21,10 +21,7 @@ import Refined (Not, Predicate (..), RefineException (..))
 -- $setup
 -- >>> :set -XOverloadedStrings
 -- >>> import Refined (NonZero, Negative)
--- >>> :{
---   trimShow :: Show a => a -> String
---   trimShow = T.unpack . T.strip . T.pack . show
--- :}
+-- >>> import Refined.Utils (showRefineException)
 
 -- | Predicate for all elements satisfying some predicate.
 --
@@ -32,8 +29,8 @@ import Refined (Not, Predicate (..), RefineException (..))
 -- >>> validate @(All NonZero) Proxy [1..5]
 -- Nothing
 --
--- >>> trimShow <$> validate @(All NonZero) Proxy [0..5]
--- Just "The predicate (NotEqualTo 0) failed with the message: Value does equal 0"
+-- >>> showRefineException <$> validate @(All NonZero) Proxy [0..5]
+-- Just "RefineOtherException (NotEqualTo 0) \"Value does equal 0\""
 --
 -- @since 0.1.0.0
 type All :: Type -> Type
@@ -57,8 +54,8 @@ instance Predicate p Char => Predicate (All p) Text where
 -- >>> validate @(Any NonZero) Proxy [0,0,0,4]
 -- Nothing
 --
--- >>> trimShow <$> validate @(Any NonZero) Proxy [0,0,0]
--- Just "The predicate (NotEqualTo 0) failed with the message: No element satisfied the predicate"
+-- >>> showRefineException <$> validate @(Any NonZero) Proxy [0,0,0]
+-- Just "RefineOtherException (NotEqualTo 0) \"No element satisfied the predicate\""
 --
 -- @since 0.1.0.0
 type Any :: Type -> Type
@@ -89,8 +86,8 @@ instance (Predicate p Char, Typeable p) => Predicate (Any p) Text where
 -- >>> validate @(None Negative) Proxy [3,4,5]
 -- Nothing
 --
--- >>> trimShow <$> validate @(None Negative) Proxy [3,-1,2,5]
--- Just "The predicate (Not (Any (LessThan 0))) does not hold"
+-- >>> showRefineException <$> validate @(None Negative) Proxy [3,-1,2,5]
+-- Just "RefineNotException (Not (Any (LessThan 0)))"
 --
 -- @since 0.1.0.0
 type None :: Type -> Type

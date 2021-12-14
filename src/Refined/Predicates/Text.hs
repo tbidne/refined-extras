@@ -1,4 +1,4 @@
--- | Provides predicates for 'Text' and 'String'.
+-- | Predicates for 'Text' and 'String'.
 --
 -- @since 0.1.0.0
 module Refined.Predicates.Text
@@ -46,10 +46,7 @@ import Refined (Predicate (..), RefineException (..))
 
 -- $setup
 -- >>> import Refined.Predicates.Foldable (All)
--- >>> :{
---   trimShow :: Show a => a -> String
---   trimShow = T.unpack . T.strip . T.pack . show
--- :}
+-- >>> import Refined.Utils (showRefineException)
 
 -- | Predicate equality for symbols.
 --
@@ -57,15 +54,14 @@ import Refined (Predicate (..), RefineException (..))
 -- >>> validate @(SymEqualTo "c") Proxy 'c'
 -- Nothing
 --
--- >>> trimShow <$> validate @(SymEqualTo "abc") Proxy 'c'
--- Just "The predicate (SymEqualTo \"abc\") failed with the message: c is not a single Char"
---
+-- >>> showRefineException <$> validate @(SymEqualTo "abc") Proxy 'c'
+-- Just "RefineOtherException (SymEqualTo \"abc\") \"c is not a single Char\""
 --
 -- >>> validate @(SymEqualTo "abc") Proxy "abc"
 -- Nothing
 --
--- >>> trimShow <$> validate @(SymEqualTo "123") @Text Proxy "abc"
--- Just "The predicate (SymEqualTo \"123\") failed with the message: abc does not equal the predicate"
+-- >>> showRefineException <$> validate @(SymEqualTo "123") @Text Proxy "abc"
+-- Just "RefineOtherException (SymEqualTo \"123\") \"abc does not equal the predicate\""
 --
 -- @since 0.1.0.0
 type SymEqualTo :: TL.Symbol -> Type
@@ -118,8 +114,8 @@ instance KnownSymbol c => Predicate (SymEqualTo c) Text where
 -- >>> validate @(All Alpha) Proxy "abc"
 -- Nothing
 --
--- >>> trimShow <$> validate @(All Alpha) Proxy "abc1"
--- Just "The predicate (Alpha) failed with the message: 1 is not an alphabetic character"
+-- >>> showRefineException <$> validate @(All Alpha) Proxy "abc1"
+-- Just "RefineOtherException (Alpha) \"1 is not an alphabetic character\""
 
 -- | Predicate for 'C.isControl'.
 --
@@ -127,8 +123,8 @@ instance KnownSymbol c => Predicate (SymEqualTo c) Text where
 -- >>> validate @Control Proxy '\r'
 -- Nothing
 --
--- >>> trimShow <$> validate @Control Proxy 'a'
--- Just "The predicate (Control) failed with the message: a is not a control character"
+-- >>> showRefineException <$> validate @Control Proxy 'a'
+-- Just "RefineOtherException (Control) \"a is not a control character\""
 --
 -- @since 0.1.0.0
 type Control :: Type
@@ -154,8 +150,8 @@ instance Predicate Control Char where
 -- >>> validate @Space Proxy '\r'
 -- Nothing
 --
--- >>> trimShow <$> validate @Space Proxy 'a'
--- Just "The predicate (Space) failed with the message: a is not a space character"
+-- >>> showRefineException <$> validate @Space Proxy 'a'
+-- Just "RefineOtherException (Space) \"a is not a space character\""
 --
 -- @since 0.1.0.0
 type Space :: Type
@@ -179,8 +175,8 @@ instance Predicate Space Char where
 -- >>> validate @Lower Proxy 'c'
 -- Nothing
 --
--- >>> trimShow <$> validate @Lower Proxy 'C'
--- Just "The predicate (Lower) failed with the message: C is not lowercase"
+-- >>> showRefineException <$> validate @Lower Proxy 'C'
+-- Just "RefineOtherException (Lower) \"C is not lowercase\""
 --
 -- @since 0.1.0.0
 type Lower :: Type
@@ -204,8 +200,8 @@ instance Predicate Lower Char where
 -- >>> validate @Upper Proxy 'C'
 -- Nothing
 --
--- >>> trimShow <$> validate @Upper Proxy 'c'
--- Just "The predicate (Upper) failed with the message: c is not uppercase"
+-- >>> showRefineException <$> validate @Upper Proxy 'c'
+-- Just "RefineOtherException (Upper) \"c is not uppercase\""
 --
 -- @since 0.1.0.0
 type Upper :: Type
@@ -229,8 +225,8 @@ instance Predicate Upper Char where
 -- >>> validate @Alpha Proxy 'c'
 -- Nothing
 --
--- >>> trimShow <$> validate @Alpha Proxy '7'
--- Just "The predicate (Alpha) failed with the message: 7 is not an alphabetic character"
+-- >>> showRefineException <$> validate @Alpha Proxy '7'
+-- Just "RefineOtherException (Alpha) \"7 is not an alphabetic character\""
 --
 -- @since 0.1.0.0
 type Alpha :: Type
@@ -257,8 +253,8 @@ instance Predicate Alpha Char where
 -- >>> validate @AlphaNum Proxy '1'
 -- Nothing
 --
--- >>> trimShow <$> validate @AlphaNum Proxy '!'
--- Just "The predicate (AlphaNum) failed with the message: ! is not an alpha-numeric character"
+-- >>> showRefineException <$> validate @AlphaNum Proxy '!'
+-- Just "RefineOtherException (AlphaNum) \"! is not an alpha-numeric character\""
 --
 -- @since 0.1.0.0
 type AlphaNum :: Type
@@ -282,8 +278,8 @@ instance Predicate AlphaNum Char where
 -- >>> validate @Print Proxy 'a'
 -- Nothing
 --
--- >>> trimShow <$> validate @Print Proxy '\v'
--- Just "The predicate (Print) failed with the message: \v is not a printable character"
+-- >>> showRefineException <$> validate @Print Proxy '\v'
+-- Just "RefineOtherException (Print) \"\\v is not a printable character\""
 --
 -- @since 0.1.0.0
 type Print :: Type
@@ -307,8 +303,8 @@ instance Predicate Print Char where
 -- >>> validate @Digit Proxy '1'
 -- Nothing
 --
--- >>> trimShow <$> validate @Digit Proxy 'a'
--- Just "The predicate (Digit) failed with the message: a is not a digit"
+-- >>> showRefineException <$> validate @Digit Proxy 'a'
+-- Just "RefineOtherException (Digit) \"a is not a digit\""
 --
 -- @since 0.1.0.0
 type Digit :: Type
@@ -332,8 +328,8 @@ instance Predicate Digit Char where
 -- >>> validate @OctDigit Proxy '4'
 -- Nothing
 --
--- >>> trimShow <$> validate @OctDigit Proxy '9'
--- Just "The predicate (OctDigit) failed with the message: 9 is not an octal digit"
+-- >>> showRefineException <$> validate @OctDigit Proxy '9'
+-- Just "RefineOtherException (OctDigit) \"9 is not an octal digit\""
 --
 -- @since 0.1.0.0
 type OctDigit :: Type
@@ -360,8 +356,8 @@ instance Predicate OctDigit Char where
 -- >>> validate @HexDigit Proxy 'f'
 -- Nothing
 --
--- >>> trimShow <$> validate @HexDigit Proxy 'g'
--- Just "The predicate (HexDigit) failed with the message: g is not a hexadecimal digit"
+-- >>> showRefineException <$> validate @HexDigit Proxy 'g'
+-- Just "RefineOtherException (HexDigit) \"g is not a hexadecimal digit\""
 --
 -- @since 0.1.0.0
 type HexDigit :: Type
@@ -385,8 +381,8 @@ instance Predicate HexDigit Char where
 -- >>> validate @Letter Proxy 'f'
 -- Nothing
 --
--- >>> trimShow <$> validate @Letter Proxy '\r'
--- Just "The predicate (Letter) failed with the message: \r is not a letter"
+-- >>> showRefineException <$> validate @Letter Proxy '\r'
+-- Just "RefineOtherException (Letter) \"\\r is not a letter\""
 --
 -- @since 0.1.0.0
 type Letter :: Type
@@ -410,8 +406,8 @@ instance Predicate Letter Char where
 -- >>> validate @Mark Proxy '\x20DD'
 -- Nothing
 --
--- >>> trimShow <$> validate @Mark Proxy 'a'
--- Just "The predicate (Mark) failed with the message: a is not a mark"
+-- >>> showRefineException <$> validate @Mark Proxy 'a'
+-- Just "RefineOtherException (Mark) \"a is not a mark\""
 --
 -- @since 0.1.0.0
 type Mark :: Type
@@ -435,8 +431,8 @@ instance Predicate Mark Char where
 -- >>> validate @Number Proxy '2'
 -- Nothing
 --
--- >>> trimShow <$> validate @Number Proxy 'a'
--- Just "The predicate (Number) failed with the message: a is not a number"
+-- >>> showRefineException <$> validate @Number Proxy 'a'
+-- Just "RefineOtherException (Number) \"a is not a number\""
 --
 -- @since 0.1.0.0
 type Number :: Type
@@ -460,8 +456,8 @@ instance Predicate Number Char where
 -- >>> validate @Punctuation Proxy '!'
 -- Nothing
 --
--- >>> trimShow <$> validate @Punctuation Proxy 'a'
--- Just "The predicate (Punctuation) failed with the message: a is not punctuation"
+-- >>> showRefineException <$> validate @Punctuation Proxy 'a'
+-- Just "RefineOtherException (Punctuation) \"a is not punctuation\""
 --
 -- @since 0.1.0.0
 type Punctuation :: Type
@@ -485,8 +481,8 @@ instance Predicate Punctuation Char where
 -- >>> validate @Symbol Proxy '$'
 -- Nothing
 --
--- >>> trimShow <$> validate @Symbol Proxy 'a'
--- Just "The predicate (Symbol) failed with the message: a is not a symbol"
+-- >>> showRefineException <$> validate @Symbol Proxy 'a'
+-- Just "RefineOtherException (Symbol) \"a is not a symbol\""
 --
 -- @since 0.1.0.0
 type Symbol :: Type
@@ -510,8 +506,8 @@ instance Predicate Symbol Char where
 -- >>> validate @Separator Proxy ' '
 -- Nothing
 --
--- >>> trimShow <$> validate @Separator Proxy 'a'
--- Just "The predicate (Separator) failed with the message: a is not a separator"
+-- >>> showRefineException <$> validate @Separator Proxy 'a'
+-- Just "RefineOtherException (Separator) \"a is not a separator\""
 --
 -- @since 0.1.0.0
 type Separator :: Type
@@ -535,8 +531,8 @@ instance Predicate Separator Char where
 -- >>> validate @Ascii Proxy 'a'
 -- Nothing
 --
--- >>> trimShow <$> validate @Ascii Proxy '\x20DD'
--- Just "The predicate (Ascii) failed with the message: \8413 is not ascii"
+-- >>> showRefineException <$> validate @Ascii Proxy '\x20DD'
+-- Just "RefineOtherException (Ascii) \"\\8413 is not ascii\""
 --
 -- @since 0.1.0.0
 type Ascii :: Type
@@ -560,8 +556,8 @@ instance Predicate Ascii Char where
 -- >>> validate @Latin1 Proxy 'a'
 -- Nothing
 --
--- >>> trimShow <$> validate @Latin1 Proxy '\x20DD'
--- Just "The predicate (Latin1) failed with the message: \8413 is not latin1"
+-- >>> showRefineException <$> validate @Latin1 Proxy '\x20DD'
+-- Just "RefineOtherException (Latin1) \"\\8413 is not latin1\""
 --
 -- @since 0.1.0.0
 type Latin1 :: Type
@@ -585,8 +581,8 @@ instance Predicate Latin1 Char where
 -- >>> validate @AsciiUpper Proxy 'A'
 -- Nothing
 --
--- >>> trimShow <$> validate @AsciiUpper Proxy 'a'
--- Just "The predicate (AsciiUpper) failed with the message: a is not uppercase ascii"
+-- >>> showRefineException <$> validate @AsciiUpper Proxy 'a'
+-- Just "RefineOtherException (AsciiUpper) \"a is not uppercase ascii\""
 --
 -- @since 0.1.0.0
 type AsciiUpper :: Type
@@ -610,8 +606,8 @@ instance Predicate AsciiUpper Char where
 -- >>> validate @AsciiLower Proxy 'a'
 -- Nothing
 --
--- >>> trimShow <$> validate @AsciiLower Proxy 'A'
--- Just "The predicate (AsciiLower) failed with the message: A is not lowercase ascii"
+-- >>> showRefineException <$> validate @AsciiLower Proxy 'A'
+-- Just "RefineOtherException (AsciiLower) \"A is not lowercase ascii\""
 --
 -- @since 0.1.0.0
 type AsciiLower :: Type

@@ -11,7 +11,8 @@ files :: [String]
 files =
   [ "-isrc",
     "src/Refined/Predicates/Foldable.hs",
-    "src/Refined/Predicates/Text.hs"
+    "src/Refined/Predicates/Text.hs",
+    "src/Refined/Utils.hs"
   ]
 
 exts :: [String]
