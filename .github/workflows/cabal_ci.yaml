@@ -30,3 +30,6 @@ jobs:
 
       - name: Compile
         run: nix develop --command cabal build
+
+      - name: Test
+        run: nix develop --command cabal test
