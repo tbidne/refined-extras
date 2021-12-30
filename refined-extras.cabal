@@ -35,10 +35,14 @@ common common-exts
     ScopedTypeVariables
     StandaloneKindSignatures
     TypeApplications
+    TypeFamilies
+    TypeOperators
 
 library
   import:           common-exts
   exposed-modules:
+    Refined.Polymorphism
+    Refined.Polymorphism.Internal
     Refined.Predicates.Foldable
     Refined.Predicates.Text
     Refined.Utils

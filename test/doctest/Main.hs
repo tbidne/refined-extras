@@ -15,6 +15,8 @@ main = do
 files :: [String]
 files =
   [ "-isrc",
+    "src/Refined/Polymorphism.hs",
+    "src/Refined/Polymorphism/Internal.hs",
     "src/Refined/Predicates/Foldable.hs",
     "src/Refined/Predicates/Text.hs",
     "src/Refined/Utils.hs"
@@ -31,5 +33,7 @@ exts =
     "-XOverloadedStrings",
     "-XScopedTypeVariables",
     "-XStandaloneKindSignatures",
-    "-XTypeApplications"
+    "-XTypeApplications",
+    "-XTypeFamilies",
+    "-XTypeOperators"
   ]
