@@ -1,15 +1,17 @@
--- | Utilities for 'Refined.Refined'.
+-- | Utilities for "Refined".
 --
 -- @since 0.1.0.0
 module Refined.Utils
   ( showRefineException,
     showtRefineException,
+    refineExceptionToType,
   )
 where
 
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.These (These (..))
+import Data.Typeable (TypeRep)
 import Refined (RefineException (..))
 
 -- $setup
@@ -61,6 +63,21 @@ showtRefineException (RefineSomeException ty someEx) =
   "RefineSomeException " <> showParens ty <> " (" <> T.pack (show someEx) <> ")"
 showtRefineException (RefineOtherException ty txt) =
   "RefineOtherException " <> showParens ty <> " " <> T.pack (show txt)
+
+-- | Retrieves the 'TypeRep' corresponding to a 'RefineException'.
+--
+-- ==== __Examples__
+-- >>> first refineExceptionToType $ refine @(And NonZero NonNegative) 0
+-- Left (And (NotEqualTo 0) (From 0))
+--
+-- @since 0.1.0.0
+refineExceptionToType :: RefineException -> TypeRep
+refineExceptionToType (RefineNotException ty) = ty
+refineExceptionToType (RefineAndException ty _) = ty
+refineExceptionToType (RefineOrException ty _ _) = ty
+refineExceptionToType (RefineXorException ty _) = ty
+refineExceptionToType (RefineSomeException ty _) = ty
+refineExceptionToType (RefineOtherException ty _) = ty
 
 showParens :: Show a => a -> Text
 showParens ty = "(" <> T.pack (show ty) <> ")"
