@@ -4,7 +4,7 @@
 -- predicates.
 --
 -- @since 0.1.0.0
-module Refined.Polymorphism
+module Refined.Extras.Polymorphism
   ( -- $polymorphism
     Implies,
     ImpliesBool,
@@ -13,13 +13,13 @@ where
 
 import Data.Kind (Constraint, Type)
 import GHC.TypeLits (ErrorMessage (..), TypeError)
-import Refined.Polymorphism.Internal (ImpliesCNF, ToCNF)
+import Refined.Extras.Polymorphism.Internal (ImpliesCNF, ToCNF)
 
 -- $setup
 -- >>> import Data.Text (Text, splitOn)
 -- >>> import Refined (NonEmpty, Not, Refined, refineTH, unrefine, type (&&), type (||))
 -- >>> import Refined (NonZero, NonNegative, Positive)
--- >>> import Refined.Predicates.Text (Alpha, Lower)
+-- >>> import Refined.Extras.Predicates.Text (Alpha, Lower)
 
 -- $polymorphism
 -- The 'Implies' type family lets us write functions that are polymorphic

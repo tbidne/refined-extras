@@ -1,7 +1,7 @@
 -- | Predicates for 'Foldable'.
 --
 -- @since 0.1.0.0
-module Refined.Predicates.Foldable
+module Refined.Extras.Predicates.Foldable
   ( -- * Elements
     All,
     Any,
@@ -21,7 +21,7 @@ import Refined (Not, Predicate (..), RefineException (..))
 -- $setup
 -- >>> :set -XOverloadedStrings
 -- >>> import Refined (NonZero, Negative)
--- >>> import Refined.Utils (showRefineException)
+-- >>> import Refined.Extras.Utils (showRefineException)
 
 -- | Predicate for all elements satisfying some predicate.
 --

@@ -41,11 +41,11 @@ common common-exts
 library
   import:           common-exts
   exposed-modules:
-    Refined.Polymorphism
-    Refined.Polymorphism.Internal
-    Refined.Predicates.Foldable
-    Refined.Predicates.Text
-    Refined.Utils
+    Refined.Extras.Polymorphism
+    Refined.Extras.Polymorphism.Internal
+    Refined.Extras.Predicates.Foldable
+    Refined.Extras.Predicates.Text
+    Refined.Extras.Utils
 
   build-depends:
     , base          >=4.14.0.0 && <4.17

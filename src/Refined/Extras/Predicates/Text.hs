@@ -1,7 +1,7 @@
 -- | Predicates for 'Text' and 'String'.
 --
 -- @since 0.1.0.0
-module Refined.Predicates.Text
+module Refined.Extras.Predicates.Text
   ( -- * Symbol Equality
     SymEqualTo,
 
@@ -45,8 +45,8 @@ import GHC.TypeLits qualified as TL
 import Refined (Predicate (..), RefineException (..))
 
 -- $setup
--- >>> import Refined.Predicates.Foldable (All)
--- >>> import Refined.Utils (showRefineException)
+-- >>> import Refined.Extras.Predicates.Foldable (All)
+-- >>> import Refined.Extras.Utils (showRefineException)
 
 -- | Predicate equality for symbols.
 --

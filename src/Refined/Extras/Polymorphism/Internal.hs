@@ -4,7 +4,7 @@
 -- the 'Refined.Polymorphism.Implies' type family in "Refined.Polymorphism".
 --
 -- @since 0.1.0.0
-module Refined.Polymorphism.Internal
+module Refined.Extras.Polymorphism.Internal
   ( ImpliesCNF,
     ImpliesCNFHelper,
     ToCNF,

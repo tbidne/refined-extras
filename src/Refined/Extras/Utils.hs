@@ -1,7 +1,7 @@
 -- | Utilities for "Refined".
 --
 -- @since 0.1.0.0
-module Refined.Utils
+module Refined.Extras.Utils
   ( showRefineException,
     showtRefineException,
     refineExceptionToType,

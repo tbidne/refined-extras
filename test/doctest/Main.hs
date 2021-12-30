@@ -15,11 +15,11 @@ main = do
 files :: [String]
 files =
   [ "-isrc",
-    "src/Refined/Polymorphism.hs",
-    "src/Refined/Polymorphism/Internal.hs",
-    "src/Refined/Predicates/Foldable.hs",
-    "src/Refined/Predicates/Text.hs",
-    "src/Refined/Utils.hs"
+    "src/Refined/Extras/Polymorphism.hs",
+    "src/Refined/Extras/Polymorphism/Internal.hs",
+    "src/Refined/Extras/Predicates/Foldable.hs",
+    "src/Refined/Extras/Predicates/Text.hs",
+    "src/Refined/Extras/Utils.hs"
   ]
 
 exts :: [String]
