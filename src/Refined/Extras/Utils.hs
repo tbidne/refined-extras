@@ -2,7 +2,11 @@
 --
 -- @since 0.1.0.0
 module Refined.Extras.Utils
-  ( showRefineException,
+  ( -- * Pattern Synonym
+    pattern MkRefined,
+
+    -- * Exception Functions
+    showRefineException,
     showtRefineException,
     refineExceptionToType,
   )
@@ -13,11 +17,21 @@ import Data.Text qualified as T
 import Data.These (These (..))
 import Data.Typeable (TypeRep)
 import Refined (RefineException (..))
+import Refined.Unsafe.Type (Refined (..))
 
 -- $setup
 -- >>> :set -XAllowAmbiguousTypes
 -- >>> import Data.Bifunctor (Bifunctor (..))
 -- >>> import Refined (And, NonNegative, NonZero, refine, Xor)
+
+-- | Unidirectional pattern synonym for 'Refined'. This allows us to pattern
+-- match on a refined term without exposing the unsafe internal details.
+--
+-- @since 0.1.0.0
+pattern MkRefined :: a -> Refined p a
+pattern MkRefined a <- Refined a
+
+{-# COMPLETE MkRefined #-}
 
 -- | Displays a 'RefineException' without formatting. Intended for situations
 -- where 'RefineException'\'s default formatting is undesirable

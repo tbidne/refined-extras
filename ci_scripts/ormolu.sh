@@ -8,6 +8,7 @@ ran_test=0
 for f in "${files[@]}"; do
     ormolu \
       --ghc-opt -XImportQualifiedPost \
+      --ghc-opt -XPatternSynonyms \
       --ghc-opt -XTypeApplications \
       --mode check "$f"
     if [ $? != 0 ]; then

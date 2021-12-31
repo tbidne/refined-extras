@@ -32,6 +32,7 @@ common common-exts
     ImportQualifiedPost
     MultiParamTypeClasses
     OverloadedStrings
+    PatternSynonyms
     ScopedTypeVariables
     StandaloneKindSignatures
     TypeApplications
@@ -45,6 +46,7 @@ library
     Refined.Extras.Polymorphism.Internal
     Refined.Extras.Predicates.Foldable
     Refined.Extras.Predicates.Text
+    Refined.Extras.Unsafe
     Refined.Extras.Utils
 
   build-depends:

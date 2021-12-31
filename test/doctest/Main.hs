@@ -19,6 +19,7 @@ files =
     "src/Refined/Extras/Polymorphism/Internal.hs",
     "src/Refined/Extras/Predicates/Foldable.hs",
     "src/Refined/Extras/Predicates/Text.hs",
+    "src/Refined/Extras/Unsafe.hs",
     "src/Refined/Extras/Utils.hs"
   ]
 
@@ -31,6 +32,7 @@ exts =
     "-XImportQualifiedPost",
     "-XMultiParamTypeClasses",
     "-XOverloadedStrings",
+    "-XPatternSynonyms",
     "-XScopedTypeVariables",
     "-XStandaloneKindSignatures",
     "-XTypeApplications",
