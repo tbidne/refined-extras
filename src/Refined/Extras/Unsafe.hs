@@ -14,6 +14,7 @@ import Refined.Extras.Utils (pattern MkRefined)
 import Refined.Unsafe qualified as RUnsafe
 
 -- $setup
+-- >>> :set -XTemplateHaskell
 -- >>> import Refined (Positive, SizeEqualTo, refineTH)
 
 -- | Lifts a function onto 'Refined', dying with an error if the

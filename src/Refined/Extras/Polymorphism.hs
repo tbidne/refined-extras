@@ -16,6 +16,7 @@ import GHC.TypeLits (ErrorMessage (..), TypeError)
 import Refined.Extras.Polymorphism.Internal (ImpliesCNF, ToCNF)
 
 -- $setup
+-- >>> :set -XTemplateHaskell
 -- >>> import Data.Text (Text, splitOn)
 -- >>> import Refined (NonEmpty, Not, Refined, refineTH, unrefine, type (&&), type (||))
 -- >>> import Refined (NonZero, NonNegative, Positive)

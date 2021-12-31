@@ -106,7 +106,7 @@ type family Reduce p where
   Reduce (Not (Not p)) = Reduce p
 -- De Morgan's laws
   Reduce (Not (p || q)) = Not (Reduce p) && Not (Reduce q)
-  Reduce (Not (p && q)) = Not (Reduce p) && Not (Reduce q)
+  Reduce (Not (p && q)) = Reduce (Not (Reduce p) || Not (Reduce q))
 -- Remaining Not (i.e. Xor)
   Reduce (Not p) = Not (Reduce p)
 -- Distributive laws
