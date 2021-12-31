@@ -42,6 +42,7 @@ common common-exts
 library
   import:           common-exts
   exposed-modules:
+    Refined.Extras
     Refined.Extras.Polymorphism
     Refined.Extras.Polymorphism.Internal
     Refined.Extras.Predicates.Foldable
