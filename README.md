@@ -8,7 +8,7 @@
 [![Cabal CI](https://img.shields.io/github/workflow/status/tbidne/refined-extras/cabal/main?label=cabal&logoColor=white)](https://github.com/tbidne/refined-extras/actions/workflows/cabal_ci.yaml)
 [![Stack CI](https://img.shields.io/github/workflow/status/tbidne/refined-extras/stack/main?label=stack&logoColor=white)](https://github.com/tbidne/refined-extras/actions/workflows/stack_ci.yaml)
 [![Nix CI](https://img.shields.io/github/workflow/status/tbidne/refined-extras/nix/main?label=nix&logo=nixos&logoColor=white)](https://github.com/tbidne/refined-extras/actions/workflows/nix_ci.yaml)
-[![MIT](https://img.shields.io/github/license/tbidne/refined-extras?color=blue)](https://opensource.org/licenses/MIT)
+[![BSD-3-Clause](https://img.shields.io/github/license/tbidne/refined-extras?color=blue)](https://opensource.org/licenses/BSD-3-Clause)
 </div>
 
 `refined-extras` provides extra functionality for the [refined](https://hackage.haskell.org/package/refined) package. This functionality can be broken into several categories.

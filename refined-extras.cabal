@@ -1,7 +1,7 @@
 cabal-version:      2.4
 name:               refined-extras
 version:            0.1.0.0
-license:            MIT
+license:            BSD-3-Clause
 license-file:       LICENSE
 tested-with:        GHC ==8.10.7
 copyright:          2021 Thomas Bidne
