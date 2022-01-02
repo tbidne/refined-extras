@@ -21,11 +21,22 @@ import Refined.Unsafe.Type (Refined (..))
 
 -- $setup
 -- >>> :set -XAllowAmbiguousTypes
+-- >>> :set -XTemplateHaskell
 -- >>> import Data.Bifunctor (Bifunctor (..))
--- >>> import Refined (And, NonNegative, NonZero, refine, Xor)
+-- >>> import Refined (And, NonNegative, NonZero, refine, Xor, refineTH)
+-- >>> import Refined.Extras.Polymorphism (Implies)
 
 -- | Unidirectional pattern synonym for 'Refined'. This allows us to pattern
 -- match on a refined term without exposing the unsafe internal details.
+--
+-- ==== __Examples__
+-- >>> :{
+-- let safeDiv :: Implies p NonZero => Int -> Refined p Int -> Int
+--     safeDiv n (MkRefined d) = n `div` d
+--     two = $$(refineTH @NonZero @Int 2)
+--  in safeDiv 10 two
+-- :}
+-- 5
 --
 -- @since 0.1.0.0
 pattern MkRefined :: a -> Refined p a

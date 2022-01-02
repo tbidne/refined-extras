@@ -11,7 +11,30 @@ homepage:           https://github.com/tbidne/refined-extras/
 bug-reports:        https://github.com/tbidne/refined-extras/issues
 synopsis:           Increased functionality for refined types.
 description:
-  @refined-extras@ provides extra functionality for the @refined@ package.
+  @refined-extras@ provides extra functionality for the [refined](https://hackage.haskell.org/package/refined)
+  package. This functionality can be broken into several categories.
+  .
+  __Polymorphism__: Allows us to write functions that are polymorphic in the
+  predicate constraints they require, e.g.,
+  .
+  @
+    safeDiv :: Implies p NonZero => Int -> Refined p Int -> Int
+  @
+  .
+  __Predicates__: Predefined predicates.
+  .
+  __Unsafe__: Unsafe functions for when we __know__ something holds but cannot
+  prove it to the type system, e.g.,
+  .
+  @
+  m = $$(refineTH 7) :: Refined Positive Int
+  n = $$(refineTH 8) :: Refined Positive Int
+  unsafeLiftR2 (+) m n -- Refined Positive Int
+  @
+  .
+  __Utils__: Various convenience utilities.
+  .
+  The entrypoint is "Refined.Extras", which reexports everything.
 
 category:           Refined Types
 extra-source-files:

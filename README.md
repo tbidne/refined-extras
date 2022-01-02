@@ -10,3 +10,27 @@
 [![Nix CI](https://img.shields.io/github/workflow/status/tbidne/refined-extras/nix/main?label=nix&logo=nixos&logoColor=white)](https://github.com/tbidne/refined-extras/actions/workflows/nix_ci.yaml)
 [![MIT](https://img.shields.io/github/license/tbidne/refined-extras?color=blue)](https://opensource.org/licenses/MIT)
 </div>
+
+`refined-extras` provides extra functionality for the [refined](https://hackage.haskell.org/package/refined) package. This functionality can be broken into several categories.
+
+__Polymorphism__: Allows us to write functions that are polymorphic in the
+predicate constraints they require, e.g.,
+
+```haskell
+safeDiv :: Implies p NonZero => Int -> Refined p Int -> Int
+```
+
+__Predicates__: Predefined predicates.
+
+__Unsafe__: Unsafe functions for when we __know__ something holds but cannot
+prove it to the type system, e.g.,
+
+```haskell
+let m = $$(refineTH 7) :: Refined Positive Int
+    n = $$(refineTH 8) :: Refined Positive Int
+ in unsafeLiftR2 (+) m n -- Refined Positive Int
+```
+
+__Utils__: Various convenience utilities.
+
+The entrypoint is `Refined.Extras`, which reexports everything.
