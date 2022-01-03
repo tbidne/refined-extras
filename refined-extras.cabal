@@ -11,30 +11,7 @@ homepage:           https://github.com/tbidne/refined-extras/
 bug-reports:        https://github.com/tbidne/refined-extras/issues
 synopsis:           Increased functionality for refined types.
 description:
-  @refined-extras@ provides extra functionality for the [refined](https://hackage.haskell.org/package/refined)
-  package. This functionality can be broken into several categories.
-  .
-  __Polymorphism__: Allows us to write functions that are polymorphic in the
-  predicate constraints they require, e.g.,
-  .
-  @
-    safeDiv :: Implies p NonZero => Int -> Refined p Int -> Int
-  @
-  .
-  __Predicates__: Predefined predicates.
-  .
-  __Unsafe__: Unsafe functions for when we __know__ something holds but cannot
-  prove it to the type system, e.g.,
-  .
-  @
-  m = $$(refineTH 7) :: Refined Positive Int
-  n = $$(refineTH 8) :: Refined Positive Int
-  unsafeLiftR2 (+) m n -- Refined Positive Int
-  @
-  .
-  __Utils__: Various convenience utilities.
-  .
-  The entrypoint is "Refined.Extras", which reexports everything.
+  @refined-extras@ provides extra functionality for the [refined](https://hackage.haskell.org/package/refined) package.
 
 category:           Refined Types
 extra-source-files:
@@ -53,6 +30,7 @@ common common-exts
     FlexibleContexts
     FlexibleInstances
     ImportQualifiedPost
+    LambdaCase
     MultiParamTypeClasses
     OverloadedStrings
     PatternSynonyms
@@ -68,6 +46,7 @@ library
     Refined.Extras
     Refined.Extras.Polymorphism
     Refined.Extras.Polymorphism.Internal
+    Refined.Extras.Polymorphism.Internal.Terms
     Refined.Extras.Predicates.Foldable
     Refined.Extras.Predicates.Text
     Refined.Extras.Unsafe
@@ -80,6 +59,29 @@ library
     , these-skinny  ^>=0.7.4
 
   hs-source-dirs:   src
+  default-language: Haskell2010
+
+test-suite props
+  import:           common-exts
+  type:             exitcode-stdio-1.0
+  main-is:          Main.hs
+  other-modules:
+    Gens
+    MaxRuns
+    Tests.CNF
+    Tests.Implies
+
+  build-depends:
+    , base
+    , hedgehog        ^>=1.0.2
+    , refined
+    , refined-extras
+    , tagged          ^>=0.8.6
+    , tasty           >=1.1.0.3 && <1.5
+    , tasty-hedgehog  >=1.0.0.2 && <1.2
+    , text
+
+  hs-source-dirs:   test/props
   default-language: Haskell2010
 
 test-suite doctest

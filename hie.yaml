@@ -3,5 +3,8 @@ cradle:
     - path: "./src"
       component: "lib:refined-extras"
 
+    - path: "./test/props"
+      component: "refined-extras:test:props"
+
     - path: "./test/doctest"
       component: "refined-extras:test:doctest"

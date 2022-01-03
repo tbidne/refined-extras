@@ -101,17 +101,17 @@ type family IsCNF p where
 type Reduce :: Type -> Type
 type family Reduce p where
 -- Eliminate Xor
-  Reduce (Xor p q) = Reduce ((p && q) || (Not p && Not q))
+  Reduce (Xor p q) = (p || q) && (Not p || Not q)
 -- Double negation
-  Reduce (Not (Not p)) = Reduce p
+  Reduce (Not (Not p)) = p
 -- De Morgan's laws
-  Reduce (Not (p || q)) = Not (Reduce p) && Not (Reduce q)
-  Reduce (Not (p && q)) = Reduce (Not (Reduce p) || Not (Reduce q))
+  Reduce (Not (p || q)) = Not p && Not q
+  Reduce (Not (p && q)) = Not p || Not q
 -- Remaining Not (i.e. Xor)
   Reduce (Not p) = Not (Reduce p)
 -- Distributive laws
-  Reduce (Or (p && q) r) = And (Reduce p || Reduce r) (Reduce q || Reduce r)
-  Reduce (Or r (p && q)) = And (Reduce p || Reduce r) (Reduce q || Reduce r)
+  Reduce (Or (p && q) r) = (p || r) && (q || r)
+  Reduce (Or r (p && q)) = (r || p) && (r || q)
 -- Remaining Or, And
   Reduce (p || q) = Reduce p || Reduce q
   Reduce (p && q) = Reduce p && Reduce q
