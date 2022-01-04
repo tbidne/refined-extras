@@ -11,19 +11,25 @@
 [![BSD-3-Clause](https://img.shields.io/github/license/tbidne/refined-extras?color=blue)](https://opensource.org/licenses/BSD-3-Clause)
 </div>
 
+# Description
+
 `refined-extras` provides extra functionality for the [refined](https://hackage.haskell.org/package/refined) package. This functionality can be broken into several categories.
 
-__Polymorphism__: Allows us to write functions that are polymorphic in the
-predicate constraints they require, e.g.,
+## Polymorphism
+
+Allows us to write functions that are polymorphic in the predicate constraints they require, e.g.,
 
 ```haskell
 safeDiv :: Implies p NonZero => Int -> Refined p Int -> Int
 ```
 
-__Predicates__: Predefined predicates.
+## Predicates
 
-__Unsafe__: Unsafe functions for when we __know__ something holds but cannot
-prove it to the type system, e.g.,
+Predefined predicates.
+
+## Unsafe
+
+Unsafe functions for when we __know__ something holds but cannot prove it to the type system, e.g.,
 
 ```haskell
 let m = $$(refineTH 7) :: Refined Positive Int
@@ -31,6 +37,8 @@ let m = $$(refineTH 7) :: Refined Positive Int
  in unsafeLiftR2 (+) m n -- Refined Positive Int
 ```
 
-__Utils__: Various convenience utilities.
+## Utils
+
+Various convenience utilities.
 
 The entrypoint is `Refined.Extras`, which reexports everything.

@@ -149,7 +149,13 @@ type family PropEquals p q where
 -- need this in case we have nested And,Or,Xor.
   PropEquals (Not p) (Not q) = PropEquals p q
 -- check reverse order for these 3
-  PropEquals (And p q) (And q p) = 'True
-  PropEquals (Or p q) (Or q p) = 'True
-  PropEquals (Xor p q) (Xor q p) = 'True
+  PropEquals (And p q) (And r s) =
+    (PropEquals p r B.&& PropEquals q s)
+      B.|| (PropEquals p s B.&& PropEquals q r)
+  PropEquals (Or p q) (Or r s) =
+    (PropEquals p r B.&& PropEquals q s)
+      B.|| (PropEquals p s B.&& PropEquals q r)
+  PropEquals (Xor p q) (Xor r s) =
+    (PropEquals p r B.&& PropEquals q s)
+      B.|| (PropEquals p s B.&& PropEquals q r)
   PropEquals p q = 'False

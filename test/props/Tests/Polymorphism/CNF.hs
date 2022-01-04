@@ -1,7 +1,7 @@
 -- | Properties for List 'Int'.
 --
 -- @since 0.1.0.0
-module Tests.CNF (props) where
+module Tests.Polymorphism.CNF (props) where
 
 import Gens qualified
 import Hedgehog ((===))

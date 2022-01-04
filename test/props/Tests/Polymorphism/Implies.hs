@@ -1,7 +1,7 @@
 -- | Properties for List 'Int'.
 --
 -- @since 0.1.0.0
-module Tests.Implies (props) where
+module Tests.Polymorphism.Implies (props) where
 
 import Gens (Prop (..))
 import Gens qualified

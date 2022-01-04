@@ -34,6 +34,7 @@ common common-exts
     MultiParamTypeClasses
     OverloadedStrings
     PatternSynonyms
+    PolyKinds
     ScopedTypeVariables
     StandaloneKindSignatures
     TypeApplications
@@ -61,6 +62,22 @@ library
   hs-source-dirs:   src
   default-language: Haskell2010
 
+test-suite unit
+  import:           common-exts
+  type:             exitcode-stdio-1.0
+  main-is:          Main.hs
+  other-modules:    Tests.Polymorphism.Implies
+  build-depends:
+    , base
+    , refined
+    , refined-extras
+    , tasty           >=1.1.0.3 && <1.5
+    , tasty-hunit     >=0.9     && <0.11
+    , text
+
+  hs-source-dirs:   test/unit
+  default-language: Haskell2010
+
 test-suite props
   import:           common-exts
   type:             exitcode-stdio-1.0
@@ -68,8 +85,8 @@ test-suite props
   other-modules:
     Gens
     MaxRuns
-    Tests.CNF
-    Tests.Implies
+    Tests.Polymorphism.CNF
+    Tests.Polymorphism.Implies
 
   build-depends:
     , base
