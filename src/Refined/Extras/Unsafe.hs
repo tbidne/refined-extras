@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
+
 -- | Exports unsafe functions.
 --
 -- @since 0.1.0.0
@@ -8,6 +10,7 @@ module Refined.Extras.Unsafe
   )
 where
 
+import GHC.Stack (HasCallStack)
 import Refined (Predicate, Refined)
 import Refined qualified as R
 import Refined.Extras.Utils (pattern MkRefined)
@@ -28,7 +31,11 @@ import Refined.Unsafe qualified as RUnsafe
 -- Refined [True,True,False,True]
 --
 -- @since 0.1.0.0
-unsafeLiftR :: Predicate p b => (a -> b) -> Refined p a -> Refined p b
+unsafeLiftR ::
+  (HasCallStack, Predicate p b) =>
+  (a -> b) ->
+  Refined p a ->
+  Refined p b
 unsafeLiftR f = RUnsafe.unsafeRefine . f . R.unrefine
 
 -- | Lifts a binary function onto 'Refined', dying with an error if the
@@ -43,7 +50,7 @@ unsafeLiftR f = RUnsafe.unsafeRefine . f . R.unrefine
 --
 -- @since 0.1.0.0
 unsafeLiftR2 ::
-  Predicate p c =>
+  (HasCallStack, Predicate p c) =>
   (a -> b -> c) ->
   Refined p a ->
   Refined p b ->
@@ -62,7 +69,7 @@ unsafeLiftR2 f (MkRefined x) = RUnsafe.unsafeRefine . f x . R.unrefine
 --
 -- @since 0.1.0.0
 unsafeLiftR3 ::
-  Predicate p d =>
+  (HasCallStack, Predicate p d) =>
   (a -> b -> c -> d) ->
   Refined p a ->
   Refined p b ->
