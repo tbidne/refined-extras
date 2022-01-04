@@ -20,8 +20,9 @@ import Data.Type.Bool qualified as B
 import Refined (And, Not, Or, Xor, type (&&), type (||))
 
 -- $setup
--- >>> import Data.Type.Equality (type (==))
--- >>> import Refined (NonZero, NonNegative, Positive)
+-- >>> data A
+-- >>> data B
+-- >>> data C
 
 -- | @ImpliesCNF q p@ determines if @q@ implies @p@, i.e., returns 'True'
 -- iff whenever @q@ is true, then @p@ is also true. We assume @q@ and @p@
@@ -126,20 +127,20 @@ type family Reduce p where
 -- @
 --
 -- ==== __Examples__
--- >>> :kind! PropEquals (NonNegative && (NonZero && NonNegative)) ((NonNegative && NonZero) && NonNegative)
--- PropEquals (NonNegative && (NonZero && NonNegative)) ((NonNegative && NonZero) && NonNegative) :: Bool
+-- >>> :kind! PropEquals (A && (B && C)) ((A && B) && C)
+-- PropEquals (A && (B && C)) ((A && B) && C) :: Bool
 -- = 'False
 --
--- >>> :kind! PropEquals (And (NonNegative || NonZero) (Not NonZero)) (And (NonNegative || NonZero) (Not NonZero))
--- PropEquals (And (NonNegative || NonZero) (Not NonZero)) (And (NonNegative || NonZero) (Not NonZero)) :: Bool
+-- >>> :kind! PropEquals (And (A || B) (Not B)) (And (A || B) (Not B))
+-- PropEquals (And (A || B) (Not B)) (And (A || B) (Not B)) :: Bool
 -- = 'True
 --
--- >>> :kind! PropEquals (And NonNegative NonZero) (And NonZero NonZero)
--- PropEquals (And NonNegative NonZero) (And NonZero NonZero) :: Bool
+-- >>> :kind! PropEquals (And A B) (And B B)
+-- PropEquals (And A B) (And B B) :: Bool
 -- = 'False
 --
--- >>> :kind! PropEquals (Not (And NonNegative NonZero)) (Not (And NonZero NonNegative))
--- PropEquals (Not (And NonNegative NonZero)) (Not (And NonZero NonNegative)) :: Bool
+-- >>> :kind! PropEquals (Not (And A B)) (Not (And B A))
+-- PropEquals (Not (And A B)) (Not (And B A)) :: Bool
 -- = 'True
 --
 -- @since 0.1.0.0

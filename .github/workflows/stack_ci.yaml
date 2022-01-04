@@ -32,3 +32,6 @@ jobs:
 
       - name: Property Tests
         run: MAX_RUNS=10000 stack test props
+
+      - name: Unit Tests
+        run: stack test unit

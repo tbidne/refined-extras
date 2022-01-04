@@ -20,7 +20,9 @@ import Refined.Extras.Polymorphism.Internal (ImpliesCNF, ToCNF)
 -- >>> import Data.Text (Text, splitOn)
 -- >>> import Refined (NonEmpty, Not, Refined, refineTH, unrefine, type (&&), type (||))
 -- >>> import Refined (NonZero, NonNegative, Positive)
--- >>> import Refined.Extras.Predicates.Text (Alpha, Lower)
+-- >>> data A
+-- >>> data B
+-- >>> data C
 
 -- $polymorphism
 -- The 'Implies' type family lets us write functions that are polymorphic
@@ -59,7 +61,7 @@ type Implies :: Type -> Type -> Constraint
 type family Implies q p where
   Implies q p = ErrIfFalse (PredNotFound q p) (ImpliesBool q p)
 
--- | @ImpliesBool q p@ returns 'True if @q@ logically implies @p@,
+-- | @ImpliesBool q p@ returns @'True@ if @q@ logically implies @p@,
 -- i.e., whenever @q@ is true, @p@ is also true.
 --
 -- NB. For a (possibly exclusive) disjunction to imply @p@, /both/ clauses
@@ -71,20 +73,20 @@ type family Implies q p where
 -- \]
 --
 -- When determining whether @q@ implies @p@ we are unfortunately limited by
--- searching for /syntactic/, not sematic, equality. In particular,
+-- searching for /syntactic/, not semantic, equality. In particular,
 --
 -- @
---   ((NonZero && NonNegative) && Even) /=> (NonZero && (NonNegative && Even))
---   (NonZero || (NonNegative && Not NonNegative) || Even) /=> NonZero || Even
+--   ((A && B) && C) /=> (A && (B && C))
+--   (A || (B && Not B) || C) /=> A || C
 -- @
 --
 -- Thus it is advisable to write function constraints as simply as possible.
 --
 -- @
 -- -- not this
--- foo :: (Implies p (NonZero && NonNegative) => Refined p a -> ...
+-- foo :: Implies p (A && B) => Refined p a -> ...
 -- -- prefer this
--- bar :: (Implies p NonZero, Implies p NonNegative) => Refined p a -> ...
+-- bar :: (Implies p A, Implies p B) => Refined p a -> ...
 -- @
 --
 -- Of course this transformation cannot be performed universally
@@ -96,20 +98,20 @@ type family Implies q p where
 -- for convenience.
 --
 -- ==== __Examples__
--- >>> :kind! ImpliesBool (Not NonZero) (NonNegative)
--- ImpliesBool (Not NonZero) (NonNegative) :: Bool
+-- >>> :kind! ImpliesBool (Not A) B
+-- ImpliesBool (Not A) B :: Bool
 -- = 'False
 --
--- >>> :kind! ImpliesBool (Not (Not NonNegative)) NonNegative
--- ImpliesBool (Not (Not NonNegative)) NonNegative :: Bool
+-- >>> :kind! ImpliesBool (Not (Not A)) A
+-- ImpliesBool (Not (Not A)) A :: Bool
 -- = 'True
 --
--- >>> :kind! ImpliesBool (NonZero || Alpha) NonZero
--- ImpliesBool (NonZero || Alpha) NonZero :: Bool
+-- >>> :kind! ImpliesBool (A || B) A
+-- ImpliesBool (A || B) A :: Bool
 -- = 'False
 --
--- >>> :kind! ImpliesBool (Alpha || (Alpha && Lower)) Alpha
--- ImpliesBool (Alpha || (Alpha && Lower)) Alpha :: Bool
+-- >>> :kind! ImpliesBool (A || (A && B)) A
+-- ImpliesBool (A || (A && B)) A :: Bool
 -- = 'True
 --
 -- @since 0.1.0.0

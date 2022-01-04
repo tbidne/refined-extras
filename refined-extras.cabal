@@ -66,7 +66,10 @@ test-suite unit
   import:           common-exts
   type:             exitcode-stdio-1.0
   main-is:          Main.hs
-  other-modules:    Tests.Polymorphism.Implies
+  other-modules:
+    Tests.Polymorphism.CNF
+    Tests.Polymorphism.Implies
+
   build-depends:
     , base
     , refined
