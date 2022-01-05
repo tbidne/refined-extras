@@ -5,9 +5,14 @@
 --
 -- @since 0.1.0.0
 module Refined.Extras.Polymorphism
-  ( -- $polymorphism
+  ( -- * Type Families
+    -- $polymorphism
     Implies,
     ImpliesBool,
+
+    -- * Errors
+    ErrIfFalse,
+    PredNotFound,
   )
 where
 
