@@ -111,7 +111,7 @@ isCNFAndRecognizes3 = THU.testCase "A && (B || Not C || A) && Not C" $ do
   Proxy @'True @=? Proxy @(IsCNF (A && (B || Not C || A) && Not C))
 
 isCNFOrRecognizes :: TestTree
-isCNFOrRecognizes = THU.testCase "A || B is CNF" $ do
+isCNFOrRecognizes = THU.testCase "A || B" $ do
   Proxy @'True @=? Proxy @(IsCNF (A || B))
 
 isCNFOrRecognizes2 :: TestTree

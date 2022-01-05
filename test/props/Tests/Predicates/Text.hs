@@ -6,7 +6,8 @@ module Tests.Predicates.Text (props) where
 import Data.Either qualified as E
 import Data.Proxy (Proxy (..))
 import Data.Text qualified as T
-import GHC.TypeLits (SomeSymbol (..), someSymbolVal)
+import GHC.TypeLits (SomeSymbol (..))
+import GHC.TypeLits qualified as TL
 import Gens qualified
 import Hedgehog (Gen)
 import Hedgehog qualified as H
@@ -97,7 +98,7 @@ symEqualToCharSucceeds = T.askOption $ \(MkMaxRuns limit) ->
     H.withTests limit $
       H.property $ do
         c <- H.forAll Gens.genChar
-        case someSymbolVal [c] of
+        case TL.someSymbolVal [c] of
           SomeSymbol sym ->
             H.assert $ E.isRight $ refineFromProxy sym c
 
@@ -115,7 +116,7 @@ symEqualToStringSucceeds = T.askOption $ \(MkMaxRuns limit) ->
     H.withTests limit $
       H.property $ do
         str <- H.forAll $ Gens.genStringX Gens.genChar
-        case someSymbolVal str of
+        case TL.someSymbolVal str of
           SomeSymbol sym ->
             H.assert $ E.isRight $ refineFromProxy sym str
 
@@ -134,7 +135,7 @@ symEqualToTextSucceeds = T.askOption $ \(MkMaxRuns limit) ->
       H.property $ do
         txt <- H.forAll $ Gens.genTextX Gens.genChar
         let str = T.unpack txt
-        case someSymbolVal str of
+        case TL.someSymbolVal str of
           SomeSymbol sym ->
             H.assert $ E.isRight $ refineFromProxy sym txt
 

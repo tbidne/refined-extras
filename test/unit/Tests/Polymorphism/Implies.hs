@@ -25,6 +25,14 @@ import Test.Tasty qualified as Tasty
 import Test.Tasty.HUnit ((@=?))
 import Test.Tasty.HUnit qualified as THU
 
+data A
+
+data B
+
+data C
+
+data D
+
 -- | @since 0.1.0.0
 tests :: TestTree
 tests =
@@ -83,67 +91,67 @@ impliesBoolTests =
 
 impliesBoolSimpleTrue :: TestTree
 impliesBoolSimpleTrue = THU.testCase "A => A" $ do
-  True @=? demote (Proxy @(ImpliesBool NonZero NonZero))
+  True @=? demote (Proxy @(ImpliesBool A A))
 
 impliesBoolAndTrue :: TestTree
 impliesBoolAndTrue = THU.testCase "A && B => A" $ do
-  True @=? demote (Proxy @(ImpliesBool (NonZero && Positive) NonZero))
+  True @=? demote (Proxy @(ImpliesBool (A && B) A))
 
 impliesBoolAndTrue2 :: TestTree
 impliesBoolAndTrue2 = THU.testCase "A && B => A && B" $ do
-  True @=? demote (Proxy @(ImpliesBool (NonZero && Positive) (NonZero && Positive)))
+  True @=? demote (Proxy @(ImpliesBool (A && B) (A && B)))
 
 impliesBoolAndTrue3 :: TestTree
 impliesBoolAndTrue3 = THU.testCase "A && B => B && A" $ do
-  True @=? demote (Proxy @(ImpliesBool (NonZero && Positive) (Positive && NonZero)))
+  True @=? demote (Proxy @(ImpliesBool (A && B) (B && A)))
 
 impliesBoolOrTrue :: TestTree
-impliesBoolOrTrue = THU.testCase "A || B => A" $ do
-  True @=? demote (Proxy @(ImpliesBool (NonZero || NonZero) NonZero))
+impliesBoolOrTrue = THU.testCase "A || A => A" $ do
+  True @=? demote (Proxy @(ImpliesBool (A || A) A))
 
 impliesBoolOrTrue2 :: TestTree
 impliesBoolOrTrue2 = THU.testCase "A || B => A || B" $ do
-  True @=? demote (Proxy @(ImpliesBool (NonZero || Positive) (NonZero || Positive)))
+  True @=? demote (Proxy @(ImpliesBool (A || B) (A || B)))
 
 impliesBoolOrTrue3 :: TestTree
 impliesBoolOrTrue3 = THU.testCase "A || B => B || A" $ do
-  True @=? demote (Proxy @(ImpliesBool (NonZero || Positive) (Positive || NonZero)))
+  True @=? demote (Proxy @(ImpliesBool (A || B) (B || A)))
 
 impliesBoolXorTrue :: TestTree
 impliesBoolXorTrue = THU.testCase "A Xor A => A" $ do
-  True @=? demote (Proxy @(ImpliesBool (NonZero `Xor` NonZero) NonZero))
+  True @=? demote (Proxy @(ImpliesBool (A `Xor` A) A))
 
 impliesBoolXorTrue2 :: TestTree
 impliesBoolXorTrue2 = THU.testCase "A Xor B => A Xor B" $ do
-  True @=? demote (Proxy @(ImpliesBool (NonZero `Xor` Positive) (Positive `Xor` NonZero)))
+  True @=? demote (Proxy @(ImpliesBool (A `Xor` B) (A `Xor` B)))
 
 impliesBoolXorTrue3 :: TestTree
 impliesBoolXorTrue3 = THU.testCase "A Xor B => B Xor A" $ do
-  True @=? demote (Proxy @(ImpliesBool (NonZero `Xor` Positive) (Positive `Xor` NonZero)))
+  True @=? demote (Proxy @(ImpliesBool (A `Xor` B) (B `Xor` A)))
 
 impliesBoolNotTrue :: TestTree
 impliesBoolNotTrue = THU.testCase "Not (Not A) ==> A" $ do
-  True @=? demote (Proxy @(ImpliesBool (Not (Not NonZero)) NonZero))
+  True @=? demote (Proxy @(ImpliesBool (Not (Not A)) A))
 
 impliesBoolSimpleFalse :: TestTree
 impliesBoolSimpleFalse = THU.testCase "A /=> B" $ do
-  False @=? demote (Proxy @(ImpliesBool Positive Negative))
+  False @=? demote (Proxy @(ImpliesBool A B))
 
 impliesBoolAndFalse :: TestTree
 impliesBoolAndFalse = THU.testCase "A && B /=> C" $ do
-  False @=? demote (Proxy @(ImpliesBool (NonZero && Positive) Negative))
+  False @=? demote (Proxy @(ImpliesBool (A && B) C))
 
 impliesBoolOrFalse :: TestTree
 impliesBoolOrFalse = THU.testCase "A || B /=> A" $ do
-  False @=? demote (Proxy @(ImpliesBool (NonZero || Positive) NonZero))
+  False @=? demote (Proxy @(ImpliesBool (A || B) A))
 
 impliesBoolXorFalse :: TestTree
 impliesBoolXorFalse = THU.testCase "A Xor B /=> A" $ do
-  False @=? demote (Proxy @(ImpliesBool (NonZero `Xor` Positive) NonZero))
+  False @=? demote (Proxy @(ImpliesBool (A `Xor` B) A))
 
 impliesBoolNotFalse :: TestTree
 impliesBoolNotFalse = THU.testCase "Not A /=> A" $ do
-  False @=? demote (Proxy @(ImpliesBool (Not NonZero) NonZero))
+  False @=? demote (Proxy @(ImpliesBool (Not A) A))
 
 requiresNonZero :: Implies p NonZero => Refined p Int -> ()
 requiresNonZero _ = ()
