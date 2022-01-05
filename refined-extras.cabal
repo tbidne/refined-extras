@@ -32,9 +32,11 @@ common common-exts
     ImportQualifiedPost
     LambdaCase
     MultiParamTypeClasses
+    NumericUnderscores
     OverloadedStrings
     PatternSynonyms
     PolyKinds
+    RankNTypes
     ScopedTypeVariables
     StandaloneKindSignatures
     TypeApplications
@@ -90,6 +92,8 @@ test-suite props
     MaxRuns
     Tests.Polymorphism.CNF
     Tests.Polymorphism.Implies
+    Tests.Predicates.Foldable
+    Tests.Predicates.Text
 
   build-depends:
     , base

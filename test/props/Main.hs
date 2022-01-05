@@ -12,6 +12,8 @@ import Test.Tasty qualified as Tasty
 import Test.Tasty.Options (OptionDescription (..))
 import Tests.Polymorphism.CNF qualified
 import Tests.Polymorphism.Implies qualified
+import Tests.Predicates.Foldable qualified
+import Tests.Predicates.Text qualified
 import Text.Read qualified as TR
 
 -- | Runs property tests. The environment variable @MAX_RUNS@ controls
@@ -30,7 +32,9 @@ main = do
   let maxRunProps =
         Tasty.localOption (MkMaxRuns maxRuns)
           <$> [ Tests.Polymorphism.CNF.props,
-                Tests.Polymorphism.Implies.props
+                Tests.Polymorphism.Implies.props,
+                Tests.Predicates.Foldable.props,
+                Tests.Predicates.Text.props
               ]
 
   Tasty.defaultMainWithIngredients ingredients $

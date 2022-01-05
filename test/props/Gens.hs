@@ -2,17 +2,41 @@
 --
 -- @since 0.1.0.0
 module Gens
-  ( Prop (..),
+  ( -- * Polymorphism Terms
+    Prop (..),
     genCalculus,
     genCNF,
     genNonCNF,
     genImpliesA,
     genNotImpliesA,
+
+    -- * Numeric
+    genPositives,
+    genPositivesWithZero,
+
+    -- * Text
+    genChar,
+    genStringX,
+    genTextX,
+
+    -- ** Specific Text
+    genCharControl,
+    genCharSpace,
+    genCharMark,
+    genCharNumber,
+    genCharNonAscii,
+    genCharNonLatin1,
+    genCharPunctuation,
+    genCharSymbol,
+    genCharSeparator,
   )
 where
 
+import Data.Char qualified as C
+import Data.Functor.Identity (Identity)
+import Data.Text (Text)
 import GHC.Natural (Natural)
-import Hedgehog (MonadGen)
+import Hedgehog (GenBase, MonadGen)
 import Hedgehog.Gen qualified as HG
 import Hedgehog.Range qualified as HR
 import Refined.Extras.Polymorphism.Internal.Terms (Calculus (..))
@@ -143,3 +167,172 @@ genNotImpliesA = do
           CAtom C,
           CAtom D
         ]
+
+genPositives :: MonadGen m => m [Natural]
+genPositives = genWithLowerBound 1
+
+genPositivesWithZero :: MonadGen m => m [Natural]
+genPositivesWithZero = do
+  positives <- genWithLowerBound 1
+  HG.shuffle $ 0 : positives
+
+genWithLowerBound :: MonadGen m => Int -> m [Natural]
+genWithLowerBound lower = HG.list listSz genPositive
+  where
+    genPositive = fromIntegral <$> HG.int (HR.exponential lower 10_000)
+    listSz = HR.constant 0 20
+
+genChar :: MonadGen m => m Char
+genChar = HG.unicodeAll
+
+genCharControl :: (MonadGen m, GenBase m ~ Identity) => m Char
+genCharControl = HG.filter C.isControl HG.latin1
+
+genCharSpace :: MonadGen m => m Char
+genCharSpace =
+  HG.element $
+    C.chr
+      <$> [ -- Unicode Space Separator
+            0x0020,
+            0x00A0,
+            0x1680,
+            0x2000,
+            0x2001,
+            0x2002,
+            0x2003,
+            0x2004,
+            0x2005,
+            0x2006,
+            0x2007,
+            0x2008,
+            0x2009,
+            0x200A,
+            0x202F,
+            0x205F,
+            0x3000
+          ]
+
+genCharNumber :: forall m. MonadGen m => m Char
+genCharNumber =
+  HG.choice
+    [ HG.digit,
+      genLetterNumber,
+      genOtherNumber
+    ]
+  where
+    genLetterNumber =
+      HG.element $
+        C.chr
+          <$> [ 0x16EE,
+                0x2177,
+                0x3029,
+                0x1015A,
+                0x1246E
+              ]
+    genOtherNumber =
+      HG.element $
+        C.chr
+          <$> [ 0x00B2,
+                0x0F2F,
+                0x2078,
+                0x10E70,
+                0x1F10C
+              ]
+
+genCharNonAscii :: (GenBase m ~ Identity, MonadGen m) => m Char
+genCharNonAscii = HG.filter (not . C.isAscii) HG.unicodeAll
+
+genCharNonLatin1 :: (GenBase m ~ Identity, MonadGen m) => m Char
+genCharNonLatin1 = HG.filter (not . C.isLatin1) HG.unicodeAll
+
+-- There are thousands of these, so only going to list a few.
+genCharMark :: MonadGen m => m Char
+genCharMark =
+  HG.element $
+    C.chr
+      <$> [ -- Spacing mark
+            0x0903,
+            0x09C0,
+            0x0B57,
+            0x0D4A,
+            0x11935,
+            0x1D172,
+            -- Enclosing mark
+            0x0488,
+            0x1ABE,
+            0x20DD,
+            0x20E4,
+            0xA672,
+            -- Non-Spacing mark
+            0x0300,
+            0x0319,
+            0x07F3,
+            0x0818,
+            0x1A65
+          ]
+
+genCharPunctuation :: MonadGen m => m Char
+genCharPunctuation =
+  HG.element $
+    C.chr
+      <$> [ -- Unicode Connector Punctuation
+            0x005F,
+            0xFF3F,
+            -- Unicode Dash Punctuation
+            0x002D,
+            0x10EAD,
+            -- Unicode Close Punctuation
+            0x0029,
+            0xFF63,
+            -- Unicode Final Punctuation
+            0x00BB,
+            0x2E21,
+            -- Unicode Initial Punctuation
+            0x00AB,
+            0x2E20,
+            -- Unicode Other Punctuation
+            0x0021,
+            0x1E95F,
+            -- Unicode Open Punctuation
+            0x0028,
+            0xFF62
+          ]
+
+genCharSymbol :: MonadGen m => m Char
+genCharSymbol =
+  HG.element $
+    C.chr
+      <$> [ -- Unicode Currency Symbol
+            0x0024,
+            0x1EcB0,
+            -- Unicode Modifier Symbol
+            0x005E,
+            0x1F3FF,
+            -- Unicode Math Symbol
+            0x002B,
+            0x1EEF1,
+            -- Unicode Other Symbol
+            0x00A6,
+            0x1FBCA
+          ]
+
+genCharSeparator :: MonadGen m => m Char
+genCharSeparator = HG.choice [genCharSpace, otherSep]
+  where
+    otherSep =
+      HG.element $
+        C.chr
+          <$> [ -- Unicode Line Separator
+                0x2028,
+                -- Unicode Paragraph Separator
+                0x2029
+              ]
+
+genStringX :: MonadGen m => m Char -> m String
+genStringX = HG.string maxStrSz
+
+genTextX :: MonadGen m => m Char -> m Text
+genTextX = HG.text maxStrSz
+
+maxStrSz :: Integral a => HR.Range a
+maxStrSz = HR.exponential 0 100

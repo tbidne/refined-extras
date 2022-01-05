@@ -1,4 +1,4 @@
--- | Properties for List 'Int'.
+-- | Properties for implication logic.
 --
 -- @since 0.1.0.0
 module Tests.Polymorphism.Implies (props) where
