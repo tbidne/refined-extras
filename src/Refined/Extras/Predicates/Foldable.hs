@@ -10,11 +10,19 @@ module Refined.Extras.Predicates.Foldable
 where
 
 import Control.Applicative (Alternative (..))
+import Data.ByteString (ByteString)
+import Data.ByteString qualified as BS
+import Data.ByteString.Lazy qualified as LBS
 import Data.Kind (Type)
+import Data.Maybe qualified as May
 import Data.Text (Text)
 import Data.Text qualified as T
+import Data.Text.Conversions (UTF8 (..))
+import Data.Text.Conversions qualified as TConv
+import Data.Text.Lazy qualified as LT
 import Data.Typeable (Proxy (..), Typeable)
 import Data.Typeable qualified as Ty
+import Data.Word (Word8)
 import GHC.Generics (Generic)
 import Refined (Not, Predicate (..), RefineException (..))
 
@@ -42,11 +50,23 @@ data All p
 
 -- | @since 0.1.0.0
 instance (Foldable f, Predicate p a) => Predicate (All p) (f a) where
-  validate _ xs = allSatisfies (validate @p Proxy) xs
+  validate _ xs = allFoldableSatisfies (validate @p Proxy) xs
 
 -- | @since 0.1.0.0
 instance Predicate p Char => Predicate (All p) Text where
   validate _ = allTextSatisfies (validate @p Proxy)
+
+-- | @since 0.1.0.0
+instance Predicate p Char => Predicate (All p) LT.Text where
+  validate _ = allLazyTextSatisfies (validate @p Proxy)
+
+-- | @since 0.1.0.0
+instance Predicate p Word8 => Predicate (All p) ByteString where
+  validate _ = allByteStringSatisfies (validate @p Proxy)
+
+-- | @since 0.1.0.0
+instance Predicate p Word8 => Predicate (All p) LBS.ByteString where
+  validate _ = allLazyByteStringSatisfies (validate @p Proxy)
 
 -- | Predicate for any element satisfying some predicate.
 --
@@ -67,7 +87,7 @@ data Any p
 
 -- | @since 0.1.0.0
 instance (Foldable f, Predicate p a, Typeable p) => Predicate (Any p) (f a) where
-  validate _ xs = anySatisfies err (validate proxy) xs
+  validate _ xs = anyFoldableSatisfies err (validate proxy) xs
     where
       proxy = Proxy @p
       err = RefineOtherException (Ty.typeRep proxy) "No element satisfied the predicate"
@@ -79,6 +99,38 @@ instance (Predicate p Char, Typeable p) => Predicate (Any p) Text where
       proxy = Proxy @p
       msg = "No element satisfied the predicate: " <> txt
       err = RefineOtherException (Ty.typeRep proxy) msg
+
+-- | @since 0.1.0.0
+instance (Predicate p Char, Typeable p) => Predicate (Any p) LT.Text where
+  validate _ txt = anyLazyTextSatisfies err (validate proxy) txt
+    where
+      proxy = Proxy @p
+      msg = "No element satisfied the predicate: " <> txt
+      err = RefineOtherException (Ty.typeRep proxy) (LT.toStrict msg)
+
+-- | @since 0.1.0.0
+instance (Predicate p Word8, Typeable p) => Predicate (Any p) ByteString where
+  validate _ bs = anyByteStringSatisfies err (validate proxy) bs
+    where
+      proxy = Proxy @p
+      prefix = "No element satisfied the predicate: "
+      err = RefineOtherException (Ty.typeRep proxy) (prefix <> msg)
+      msg =
+        May.fromMaybe
+          "<Could not decode UTF-8>"
+          (TConv.decodeConvertText (UTF8 bs))
+
+-- | @since 0.1.0.0
+instance (Predicate p Word8, Typeable p) => Predicate (Any p) LBS.ByteString where
+  validate _ bs = anyLazyByteStringSatisfies err (validate proxy) bs
+    where
+      proxy = Proxy @p
+      prefix = "No element satisfied the predicate: "
+      err = RefineOtherException (Ty.typeRep proxy) (prefix <> msg)
+      msg =
+        May.fromMaybe
+          "<Could not decode UTF-8>"
+          (TConv.decodeConvertText (UTF8 (LBS.toStrict bs)))
 
 -- | Predicate for no elements satisfying a predicate.
 --
@@ -94,22 +146,42 @@ type None :: Type -> Type
 
 type None p = Not (Any p)
 
-allSatisfies :: Foldable f => (a -> Maybe b) -> f a -> Maybe b
-allSatisfies p = foldr (\x acc -> p x <|> acc) Nothing
+allFoldableSatisfies :: Foldable f => (a -> Maybe b) -> f a -> Maybe b
+allFoldableSatisfies = allSatisfies foldr
 
 allTextSatisfies :: (Char -> Maybe b) -> Text -> Maybe b
-allTextSatisfies p = T.foldr (\x acc -> p x <|> acc) Nothing
+allTextSatisfies = allSatisfies T.foldr
 
-anySatisfies :: Foldable f => b -> (a -> Maybe b) -> f a -> Maybe b
-anySatisfies defErr p = foldr f (Just defErr)
-  where
-    f x acc = case p x of
-      Just _ -> acc
-      Nothing -> Nothing
+allLazyTextSatisfies :: (Char -> Maybe b) -> LT.Text -> Maybe b
+allLazyTextSatisfies = allSatisfies LT.foldr
+
+allByteStringSatisfies :: (Word8 -> Maybe a) -> ByteString -> Maybe a
+allByteStringSatisfies = allSatisfies BS.foldr
+
+allLazyByteStringSatisfies :: (Word8 -> Maybe a) -> LBS.ByteString -> Maybe a
+allLazyByteStringSatisfies = allSatisfies LBS.foldr
+
+allSatisfies :: ((a -> Maybe b -> Maybe b) -> Maybe c -> d) -> (a -> Maybe b) -> d
+allSatisfies foldFn testPred = foldFn (\x acc -> testPred x <|> acc) Nothing
+
+anyFoldableSatisfies :: Foldable f => b -> (a -> Maybe b) -> f a -> Maybe b
+anyFoldableSatisfies = anySatisfies foldr
 
 anyTextSatisfies :: b -> (Char -> Maybe b) -> Text -> Maybe b
-anyTextSatisfies defErr p = T.foldr f (Just defErr)
+anyTextSatisfies = anySatisfies T.foldr
+
+anyLazyTextSatisfies :: b -> (Char -> Maybe b) -> LT.Text -> Maybe b
+anyLazyTextSatisfies = anySatisfies LT.foldr
+
+anyByteStringSatisfies :: b -> (Word8 -> Maybe b) -> ByteString -> Maybe b
+anyByteStringSatisfies = anySatisfies BS.foldr
+
+anyLazyByteStringSatisfies :: b -> (Word8 -> Maybe b) -> LBS.ByteString -> Maybe b
+anyLazyByteStringSatisfies = anySatisfies LBS.foldr
+
+anySatisfies :: ((a -> Maybe b -> Maybe b) -> Maybe c -> d) -> c -> (a -> Maybe e) -> d
+anySatisfies foldFn defErr testPred = foldFn f (Just defErr)
   where
-    f x acc = case p x of
+    f x acc = case testPred x of
       Just _ -> acc
       Nothing -> Nothing

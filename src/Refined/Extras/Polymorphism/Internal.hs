@@ -1,7 +1,8 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Internal module for predicate polymorphism. These are all used to implement
--- the 'Refined.Polymorphism.Implies' type family in "Refined.Polymorphism".
+-- the 'Refined.Polymorphism.Implies' type family in
+-- "Refined.Extras.Polymorphism".
 --
 -- @since 0.1.0.0
 module Refined.Extras.Polymorphism.Internal

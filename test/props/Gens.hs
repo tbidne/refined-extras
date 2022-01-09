@@ -16,10 +16,14 @@ module Gens
 
     -- * Text
     genChar,
+    genWord8X,
     genStringX,
     genTextX,
+    genLazyTextX,
+    genByteStringX,
+    genLazyByteStringX,
 
-    -- ** Specific Text
+    -- ** Char
     genCharControl,
     genCharSpace,
     genCharMark,
@@ -29,12 +33,31 @@ module Gens
     genCharPunctuation,
     genCharSymbol,
     genCharSeparator,
+    genCharLatin1NoAscii,
+
+    -- ** Text
+    genTextAlpha,
+    genTextAlphaWithDigit,
+    genLazyTextAlpha,
+    genLazyTextAlphaWithDigit,
+
+    -- ** ByteString
+    genByteStringDigit,
+    genByteStringDigitWithAlpha,
+    genLazyByteStringDigit,
+    genLazyByteStringDigitWithAlpha,
   )
 where
 
+import Data.ByteString (ByteString)
+import Data.ByteString.Lazy qualified as LBS
 import Data.Char qualified as C
 import Data.Functor.Identity (Identity)
 import Data.Text (Text)
+import Data.Text qualified as T
+import Data.Text.Conversions qualified as TConv
+import Data.Text.Lazy qualified as LT
+import Data.Word (Word8)
 import GHC.Natural (Natural)
 import Hedgehog (GenBase, MonadGen)
 import Hedgehog.Gen qualified as HG
@@ -185,7 +208,7 @@ genWithLowerBound lower = HG.list listSz genPositive
 genChar :: MonadGen m => m Char
 genChar = HG.unicodeAll
 
-genCharControl :: (MonadGen m, GenBase m ~ Identity) => m Char
+genCharControl :: (GenBase m ~ Identity, MonadGen m) => m Char
 genCharControl = HG.filter C.isControl HG.latin1
 
 genCharSpace :: MonadGen m => m Char
@@ -328,11 +351,62 @@ genCharSeparator = HG.choice [genCharSpace, otherSep]
                 0x2029
               ]
 
+genCharLatin1NoAscii :: (GenBase m ~ Identity, MonadGen m) => m Char
+genCharLatin1NoAscii = HG.filter (not . C.isAscii) HG.latin1
+
+genWord8X :: MonadGen m => m Char -> m Word8
+genWord8X genFn = fromIntegral . C.ord <$> genFn
+
 genStringX :: MonadGen m => m Char -> m String
 genStringX = HG.string maxStrSz
 
 genTextX :: MonadGen m => m Char -> m Text
 genTextX = HG.text maxStrSz
+
+genLazyTextX :: MonadGen m => m Char -> m LT.Text
+genLazyTextX = fmap LT.fromStrict . HG.text maxStrSz
+
+genByteStringX :: MonadGen m => m Char -> m ByteString
+genByteStringX = HG.utf8 maxStrSz
+
+genLazyByteStringX :: MonadGen m => m Char -> m LBS.ByteString
+genLazyByteStringX = fmap LBS.fromStrict . HG.utf8 maxStrSz
+
+-- Note: Hedgehog's notion of 'alpha' is specifically ASCII alpha. This is
+-- much more limited than unicode's notion of alpha. Thus we can use this
+-- whenever we want to satisfy our Alpha predicate, keeping in mind that
+-- are only covering a fraction of the domain.
+genTextAlpha :: MonadGen m => m Text
+genTextAlpha = genTextX HG.alpha
+
+genLazyTextAlpha :: MonadGen m => m LT.Text
+genLazyTextAlpha = LT.fromStrict <$> genTextAlpha
+
+genTextAlphaWithDigit :: MonadGen m => m Text
+genTextAlphaWithDigit = do
+  txt <- genTextX HG.alpha
+  d <- HG.digit
+  let str = d : T.unpack txt
+  T.pack <$> HG.shuffle str
+
+genLazyTextAlphaWithDigit :: MonadGen m => m LT.Text
+genLazyTextAlphaWithDigit = LT.fromStrict <$> genTextAlphaWithDigit
+
+genByteStringDigit :: MonadGen m => m ByteString
+genByteStringDigit = TConv.unUTF8 . TConv.convertText <$> Gens.genTextX HG.digit
+
+genLazyByteStringDigit :: MonadGen m => m LBS.ByteString
+genLazyByteStringDigit = LBS.fromStrict <$> genByteStringDigit
+
+genByteStringDigitWithAlpha :: MonadGen m => m ByteString
+genByteStringDigitWithAlpha = do
+  digits <- Gens.genTextX HG.digit
+  c <- HG.alpha
+  let s = c : T.unpack digits
+  TConv.unUTF8 . TConv.convertText <$> HG.shuffle s
+
+genLazyByteStringDigitWithAlpha :: MonadGen m => m LBS.ByteString
+genLazyByteStringDigitWithAlpha = LBS.fromStrict <$> genByteStringDigitWithAlpha
 
 maxStrSz :: Integral a => HR.Range a
 maxStrSz = HR.exponential 0 100

@@ -6,6 +6,7 @@ module Tests.Predicates.Text (props) where
 import Data.Either qualified as E
 import Data.Proxy (Proxy (..))
 import Data.Text qualified as T
+import Data.Text.Lazy qualified as LT
 import GHC.TypeLits (SomeSymbol (..))
 import GHC.TypeLits qualified as TL
 import Gens qualified
@@ -19,6 +20,8 @@ import Refined.Extras.Predicates.Text
   ( Alpha,
     AlphaNum,
     Ascii,
+    AsciiAlpha,
+    AsciiAlphaNum,
     AsciiLower,
     AsciiUpper,
     Control,
@@ -46,50 +49,23 @@ props :: TestTree
 props =
   T.testGroup
     "Text properties"
+    [ symbolProps,
+      unicodeProps,
+      asciiProps
+    ]
+
+symbolProps :: TestTree
+symbolProps =
+  T.testGroup
+    "Symbol equality"
     [ symEqualToCharSucceeds,
       symEqualToCharFails,
       symEqualToStringSucceeds,
       symEqualToStringFails,
       symEqualToTextSucceeds,
       symEqualToTextFails,
-      controlCharSucceeds,
-      controlCharFails,
-      spaceCharSucceeds,
-      spaceCharFails,
-      lowerCharSucceeds,
-      lowerCharFails,
-      upperCharSucceeds,
-      upperCharFails,
-      alphaCharSucceeds,
-      alphaCharFails,
-      alphaNumCharSucceeds,
-      alphaNumCharFails,
-      digitCharSucceeds,
-      digitCharFails,
-      octalCharSucceeds,
-      octalCharFails,
-      hexCharSucceeds,
-      hexCharFails,
-      letterCharSucceeds,
-      letterCharFails,
-      markCharSucceeds,
-      markCharFails,
-      numberCharSucceeds,
-      numberCharFails,
-      punctuationCharSucceeds,
-      punctuationCharFails,
-      symbolCharSucceeds,
-      symbolCharFails,
-      separatorCharSucceeds,
-      separatorCharFails,
-      asciiCharSucceeds,
-      asciiCharFails,
-      latin1CharSucceeds,
-      latin1CharFails,
-      asciiLowerCharSucceeds,
-      asciiLowerCharFails,
-      asciiUpperCharSucceeds,
-      asciiUpperCharFails
+      symEqualToLazyTextSucceeds,
+      symEqualToLazyTextFails
     ]
 
 symEqualToCharSucceeds :: TestTree
@@ -147,11 +123,52 @@ symEqualToTextFails = T.askOption $ \(MkMaxRuns limit) ->
         txt <- H.forAll $ Gens.genTextX HG.alpha
         H.assert $ E.isLeft $ R.refine @(SymEqualTo "1") txt
 
-controlCharSucceeds :: TestTree
-controlCharSucceeds = xSucceeds (Proxy @Control) "Control Char succeeds" Gens.genCharControl
+symEqualToLazyTextSucceeds :: TestTree
+symEqualToLazyTextSucceeds = T.askOption $ \(MkMaxRuns limit) ->
+  TH.testProperty "Lazy Text symEqualTo succeeds" $
+    H.withTests limit $
+      H.property $ do
+        txt <- H.forAll $ Gens.genLazyTextX Gens.genChar
+        let str = T.unpack $ LT.toStrict txt
+        case TL.someSymbolVal str of
+          SomeSymbol sym ->
+            H.assert $ E.isRight $ refineFromProxy sym txt
 
-controlCharFails :: TestTree
-controlCharFails = xFails (Proxy @Control) "Control Char fails" HG.digit
+symEqualToLazyTextFails :: TestTree
+symEqualToLazyTextFails = T.askOption $ \(MkMaxRuns limit) ->
+  TH.testProperty "Lazy Text symEqualTo fails" $
+    H.withTests limit $
+      H.property $ do
+        txt <- H.forAll $ Gens.genLazyTextX HG.alpha
+        H.assert $ E.isLeft $ R.refine @(SymEqualTo "1") txt
+
+unicodeProps :: TestTree
+unicodeProps =
+  T.testGroup
+    "Unicode predicates"
+    [ spaceCharSucceeds,
+      spaceCharFails,
+      lowerCharSucceeds,
+      lowerCharFails,
+      upperCharSucceeds,
+      upperCharFails,
+      alphaCharSucceeds,
+      alphaCharFails,
+      alphaNumCharSucceeds,
+      alphaNumCharFails,
+      letterCharSucceeds,
+      letterCharFails,
+      markCharSucceeds,
+      markCharFails,
+      numberCharSucceeds,
+      numberCharFails,
+      punctuationCharSucceeds,
+      punctuationCharFails,
+      symbolCharSucceeds,
+      symbolCharFails,
+      separatorCharSucceeds,
+      separatorCharFails
+    ]
 
 spaceCharSucceeds :: TestTree
 spaceCharSucceeds = xSucceeds (Proxy @Space) "Space Char succeeds" Gens.genCharSpace
@@ -182,24 +199,6 @@ alphaNumCharSucceeds = xSucceeds (Proxy @AlphaNum) "AlphaNum Char succeeds" HG.a
 
 alphaNumCharFails :: TestTree
 alphaNumCharFails = xFails (Proxy @AlphaNum) "AlphaNum Char fails" Gens.genCharSpace
-
-digitCharSucceeds :: TestTree
-digitCharSucceeds = xSucceeds (Proxy @Digit) "Digit Char succeeds" HG.digit
-
-digitCharFails :: TestTree
-digitCharFails = xFails (Proxy @Digit) "Digit Char fails" HG.alpha
-
-octalCharSucceeds :: TestTree
-octalCharSucceeds = xSucceeds (Proxy @OctDigit) "Octal Char succeeds" HG.octit
-
-octalCharFails :: TestTree
-octalCharFails = xFails (Proxy @OctDigit) "Octal Char fails" HG.alpha
-
-hexCharSucceeds :: TestTree
-hexCharSucceeds = xSucceeds (Proxy @HexDigit) "Hex Char succeeds" HG.hexit
-
-hexCharFails :: TestTree
-hexCharFails = xFails (Proxy @HexDigit) "Hex Char fails" Gens.genCharSpace
 
 letterCharSucceeds :: TestTree
 letterCharSucceeds = xSucceeds (Proxy @Letter) "Letter Char succeeds" HG.alpha
@@ -237,11 +236,110 @@ separatorCharSucceeds = xSucceeds (Proxy @Separator) "Separator Char succeeds" G
 separatorCharFails :: TestTree
 separatorCharFails = xFails (Proxy @Separator) "Separator Char fails" HG.digit
 
+asciiProps :: TestTree
+asciiProps =
+  T.testGroup
+    "Ascii/Latin1 predicates"
+    [ controlCharSucceeds,
+      controlCharFails,
+      controlWord8Succeeds,
+      controlWord8Fails,
+      digitCharSucceeds,
+      digitCharFails,
+      digitWord8Succeeds,
+      digitWord8Fails,
+      octalCharSucceeds,
+      octalCharFails,
+      octalWord8Succeeds,
+      octalWord8Fails,
+      hexCharSucceeds,
+      hexCharFails,
+      hexWord8Succeeds,
+      hexWord8Fails,
+      asciiCharSucceeds,
+      asciiCharFails,
+      asciiWord8Succeeds,
+      asciiWord8Fails,
+      latin1CharSucceeds,
+      latin1CharFails,
+      latin1Word8Succeeds,
+      asciiLowerCharSucceeds,
+      asciiLowerCharFails,
+      asciiLowerWord8Succeeds,
+      asciiLowerWord8Fails,
+      asciiUpperCharSucceeds,
+      asciiUpperCharFails,
+      asciiUpperWord8Succeeds,
+      asciiUpperWord8Fails,
+      asciiAlphaCharSucceeds,
+      asciiAlphaCharFails,
+      asciiAlphaWord8Succeeds,
+      asciiAlphaWord8Fails,
+      asciiAlphaNumCharSucceeds,
+      asciiAlphaNumCharFails,
+      asciiAlphaNumWord8Succeeds,
+      asciiAlphaNumWord8Fails
+    ]
+
+controlCharSucceeds :: TestTree
+controlCharSucceeds = xSucceeds (Proxy @Control) "Control Char succeeds" Gens.genCharControl
+
+controlCharFails :: TestTree
+controlCharFails = xFails (Proxy @Control) "Control Char fails" HG.digit
+
+controlWord8Succeeds :: TestTree
+controlWord8Succeeds = xSucceeds (Proxy @Control) "Control Word8 succeeds" (Gens.genWord8X Gens.genCharControl)
+
+controlWord8Fails :: TestTree
+controlWord8Fails = xFails (Proxy @Control) "Control Word8 fails" (Gens.genWord8X HG.digit)
+
+digitCharSucceeds :: TestTree
+digitCharSucceeds = xSucceeds (Proxy @Digit) "Digit Char succeeds" HG.digit
+
+digitCharFails :: TestTree
+digitCharFails = xFails (Proxy @Digit) "Digit Char fails" HG.alpha
+
+digitWord8Succeeds :: TestTree
+digitWord8Succeeds = xSucceeds (Proxy @Digit) "Digit Word8 succeeds" (Gens.genWord8X HG.digit)
+
+digitWord8Fails :: TestTree
+digitWord8Fails = xFails (Proxy @Digit) "Digit Word8 fails" (Gens.genWord8X HG.alpha)
+
+octalCharSucceeds :: TestTree
+octalCharSucceeds = xSucceeds (Proxy @OctDigit) "Octal Char succeeds" HG.octit
+
+octalCharFails :: TestTree
+octalCharFails = xFails (Proxy @OctDigit) "Octal Char fails" HG.alpha
+
+octalWord8Succeeds :: TestTree
+octalWord8Succeeds = xSucceeds (Proxy @OctDigit) "Octal Word8 succeeds" (Gens.genWord8X HG.octit)
+
+octalWord8Fails :: TestTree
+octalWord8Fails = xFails (Proxy @OctDigit) "Octal Word8 fails" (Gens.genWord8X HG.alpha)
+
+hexCharSucceeds :: TestTree
+hexCharSucceeds = xSucceeds (Proxy @HexDigit) "Hex Char succeeds" HG.hexit
+
+hexCharFails :: TestTree
+hexCharFails = xFails (Proxy @HexDigit) "Hex Char fails" Gens.genCharSpace
+
+hexWord8Succeeds :: TestTree
+hexWord8Succeeds = xSucceeds (Proxy @HexDigit) "Hex Word8 succeeds" (Gens.genWord8X HG.hexit)
+
+hexWord8Fails :: TestTree
+hexWord8Fails = xFails (Proxy @HexDigit) "Hex Word8 fails" (Gens.genWord8X Gens.genCharSpace)
+
 asciiCharSucceeds :: TestTree
 asciiCharSucceeds = xSucceeds (Proxy @Ascii) "Ascii Char succeeds" HG.ascii
 
 asciiCharFails :: TestTree
 asciiCharFails = xFails (Proxy @Ascii) "Ascii Char fails" Gens.genCharNonAscii
+
+asciiWord8Succeeds :: TestTree
+asciiWord8Succeeds = xSucceeds (Proxy @Ascii) "Ascii Word8 succeeds" HG.ascii
+
+asciiWord8Fails :: TestTree
+asciiWord8Fails = xFails (Proxy @Ascii) "Ascii Word8 fails" (Gens.genWord8X Gens.genCharLatin1NoAscii)
 
 latin1CharSucceeds :: TestTree
 latin1CharSucceeds = xSucceeds (Proxy @Latin1) "Latin1 Char succeeds" HG.latin1
@@ -249,17 +347,59 @@ latin1CharSucceeds = xSucceeds (Proxy @Latin1) "Latin1 Char succeeds" HG.latin1
 latin1CharFails :: TestTree
 latin1CharFails = xFails (Proxy @Latin1) "Latin1 Char fails" Gens.genCharNonLatin1
 
+latin1Word8Succeeds :: TestTree
+latin1Word8Succeeds = xSucceeds (Proxy @Latin1) "Latin1 Word8 succeeds" (Gens.genWord8X HG.latin1)
+
+-- No latin1Word8Fails because Word8 is trivially Latin1, i.e., should always
+-- succeed
+
 asciiLowerCharSucceeds :: TestTree
-asciiLowerCharSucceeds = xSucceeds (Proxy @AsciiLower) "Ascii Lower Char succeeds" HG.lower
+asciiLowerCharSucceeds = xSucceeds (Proxy @AsciiLower) "AsciiLower Char succeeds" HG.lower
 
 asciiLowerCharFails :: TestTree
-asciiLowerCharFails = xFails (Proxy @AsciiLower) "Ascii Lower Char fails" HG.upper
+asciiLowerCharFails = xFails (Proxy @AsciiLower) "AsciiLower Char fails" HG.upper
+
+asciiLowerWord8Succeeds :: TestTree
+asciiLowerWord8Succeeds = xSucceeds (Proxy @AsciiLower) "AsciiLower Word8 succeeds" (Gens.genWord8X HG.lower)
+
+asciiLowerWord8Fails :: TestTree
+asciiLowerWord8Fails = xFails (Proxy @AsciiLower) "AsciiLower Word8 fails" (Gens.genWord8X HG.upper)
 
 asciiUpperCharSucceeds :: TestTree
-asciiUpperCharSucceeds = xSucceeds (Proxy @AsciiUpper) "Ascii Upper Char succeeds" HG.upper
+asciiUpperCharSucceeds = xSucceeds (Proxy @AsciiUpper) "AsciiUpper Char succeeds" HG.upper
 
 asciiUpperCharFails :: TestTree
-asciiUpperCharFails = xFails (Proxy @AsciiUpper) "Ascii Upper Char fails" HG.lower
+asciiUpperCharFails = xFails (Proxy @AsciiUpper) "AsciiUpper Char fails" HG.lower
+
+asciiUpperWord8Succeeds :: TestTree
+asciiUpperWord8Succeeds = xSucceeds (Proxy @AsciiUpper) "AsciiUpper Word8 succeeds" (Gens.genWord8X HG.upper)
+
+asciiUpperWord8Fails :: TestTree
+asciiUpperWord8Fails = xFails (Proxy @AsciiUpper) "AsciiUpper Word8 fails" (Gens.genWord8X HG.lower)
+
+asciiAlphaCharSucceeds :: TestTree
+asciiAlphaCharSucceeds = xSucceeds (Proxy @AsciiAlpha) "AsciiAlpha Char succeeds" HG.alpha
+
+asciiAlphaCharFails :: TestTree
+asciiAlphaCharFails = xFails (Proxy @AsciiAlpha) "AsciiAlpha Char fails" HG.digit
+
+asciiAlphaWord8Succeeds :: TestTree
+asciiAlphaWord8Succeeds = xSucceeds (Proxy @AsciiAlpha) "AsciiAlpha Word8 succeeds" (Gens.genWord8X HG.alpha)
+
+asciiAlphaWord8Fails :: TestTree
+asciiAlphaWord8Fails = xFails (Proxy @AsciiAlpha) "AsciiAlpha Word8 fails" (Gens.genWord8X HG.digit)
+
+asciiAlphaNumCharSucceeds :: TestTree
+asciiAlphaNumCharSucceeds = xSucceeds (Proxy @AsciiAlphaNum) "AsciiAlphaNum Char succeeds" HG.alphaNum
+
+asciiAlphaNumCharFails :: TestTree
+asciiAlphaNumCharFails = xFails (Proxy @AsciiAlphaNum) "AsciiAlphaNum Char fails" Gens.genCharSpace
+
+asciiAlphaNumWord8Succeeds :: TestTree
+asciiAlphaNumWord8Succeeds = xSucceeds (Proxy @AsciiAlphaNum) "AsciiAlphaNum Word8 succeeds" (Gens.genWord8X HG.alphaNum)
+
+asciiAlphaNumWord8Fails :: TestTree
+asciiAlphaNumWord8Fails = xFails (Proxy @AsciiAlphaNum) "AsciiAlphaNum Word8 fails" (Gens.genWord8X Gens.genCharSpace)
 
 xSucceeds ::
   forall p a.

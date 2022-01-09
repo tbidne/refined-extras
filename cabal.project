@@ -4,6 +4,7 @@ package refined
   flags: -aeson -quickcheck
 
 package refined-extras
+  tests: True
   ghc-options:
     -Wall -Wcompat -Werror -Widentities
     -Wincomplete-record-updates -Wincomplete-uni-patterns
