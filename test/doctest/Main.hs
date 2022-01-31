@@ -25,7 +25,8 @@ files =
 
 exts :: [String]
 exts =
-  [ "-XDataKinds",
+  [ "-XConstraintKinds",
+    "-XDataKinds",
     "-XDeriveGeneric",
     "-XFlexibleContexts",
     "-XFlexibleInstances",

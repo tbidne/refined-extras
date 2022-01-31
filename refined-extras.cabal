@@ -24,6 +24,7 @@ source-repository head
 
 common common-exts
   default-extensions:
+    ConstraintKinds
     DataKinds
     DeriveGeneric
     DerivingVia

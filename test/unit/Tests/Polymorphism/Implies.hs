@@ -19,7 +19,7 @@ import Refined
     type (||),
   )
 import Refined qualified as R
-import Refined.Extras.Polymorphism (Implies, ImpliesBool)
+import Refined.Extras.Polymorphism (ImpliesBool, (:=>))
 import Test.Tasty (TestTree)
 import Test.Tasty qualified as Tasty
 import Test.Tasty.HUnit ((@=?))
@@ -153,7 +153,7 @@ impliesBoolNotFalse :: TestTree
 impliesBoolNotFalse = THU.testCase "Not A /=> A" $ do
   False @=? demote (Proxy @(ImpliesBool (Not A) A))
 
-requiresNonZero :: Implies p NonZero => Refined p Int -> ()
+requiresNonZero :: p :=> NonZero => Refined p Int -> ()
 requiresNonZero _ = ()
 
 type Demote :: forall k. k -> Constraint

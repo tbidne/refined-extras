@@ -8,6 +8,7 @@ module Refined.Extras.Polymorphism
   ( -- * Type Families
     -- $polymorphism
     Implies,
+    (:=>),
     ImpliesBool,
 
     -- * Errors
@@ -65,6 +66,21 @@ import Refined.Extras.Polymorphism.Internal (ImpliesCNF, ToCNF)
 type Implies :: Type -> Type -> Constraint
 type family Implies q p where
   Implies q p = ErrIfFalse (PredNotFound q p) (ImpliesBool q p)
+
+-- | Infix operator for 'Implies'.
+--
+-- ==== __Examples__
+-- >>> :{
+--   safeDiv2 :: (p :=> NonZero, Integral n) => n -> Refined p n -> n
+--   safeDiv2 x d = x `div` unrefine d
+-- :}
+--
+-- @since 0.1.0.0
+type (:=>) :: Type -> Type -> Constraint
+
+type p :=> q = Implies p q
+
+infixr 1 :=>
 
 -- | @ImpliesBool q p@ returns @'True@ if @q@ logically implies @p@,
 -- i.e., whenever @q@ is true, @p@ is also true.
