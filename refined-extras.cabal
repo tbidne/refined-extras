@@ -91,7 +91,9 @@ test-suite props
   type:             exitcode-stdio-1.0
   main-is:          Main.hs
   other-modules:
-    Gens
+    Gens.Numeric
+    Gens.Polymorphism
+    Gens.Text
     MaxRuns
     Tests.Polymorphism.CNF
     Tests.Polymorphism.Implies

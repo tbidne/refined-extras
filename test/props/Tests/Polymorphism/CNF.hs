@@ -3,7 +3,7 @@
 -- @since 0.1.0.0
 module Tests.Polymorphism.CNF (props) where
 
-import Gens qualified
+import Gens.Polymorphism qualified as Gens
 import Hedgehog ((===))
 import Hedgehog qualified as H
 import MaxRuns (MaxRuns (..))

@@ -5,7 +5,8 @@ module Tests.Predicates.Foldable (props) where
 
 import Data.Either qualified as E
 import Data.Proxy (Proxy (..))
-import Gens qualified
+import Gens.Numeric qualified as Gens
+import Gens.Text qualified as Gens
 import Hedgehog (Gen)
 import Hedgehog qualified as H
 import MaxRuns (MaxRuns (..))

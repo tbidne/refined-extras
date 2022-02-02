@@ -3,8 +3,8 @@
 -- @since 0.1.0.0
 module Tests.Polymorphism.Implies (props) where
 
-import Gens (Prop (..))
-import Gens qualified
+import Gens.Polymorphism (Prop (..))
+import Gens.Polymorphism qualified as Gens
 import Hedgehog ((===))
 import Hedgehog qualified as H
 import MaxRuns (MaxRuns (..))
