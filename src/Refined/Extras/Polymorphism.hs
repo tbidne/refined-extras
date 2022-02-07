@@ -77,7 +77,6 @@ type family Implies q p where
 --
 -- @since 0.1.0.0
 type (:=>) :: Type -> Type -> Constraint
-
 type p :=> q = Implies p q
 
 infixr 1 :=>
@@ -154,7 +153,6 @@ type family ErrIfFalse p b where
 --
 -- @since 0.1.0.0
 type PredNotFound :: Type -> Type -> ErrorMessage
-
 type PredNotFound p q =
   ( 'Text "Desired predicate "
       ':<>: 'ShowType q

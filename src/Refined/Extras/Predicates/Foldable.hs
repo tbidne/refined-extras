@@ -143,7 +143,6 @@ instance (Predicate p Word8, Typeable p) => Predicate (Any p) LBS.ByteString whe
 --
 -- @since 0.1.0.0
 type None :: Type -> Type
-
 type None p = Not (Any p)
 
 allFoldableSatisfies :: Foldable f => (a -> Maybe b) -> f a -> Maybe b
