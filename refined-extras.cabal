@@ -58,7 +58,7 @@ library
 
   build-depends:
     , base              >=4.14.0.0  && <4.17
-    , bytestring        >=0.10.12.0 && <=0.12
+    , bytestring        >=0.10.12.0 && <0.12
     , refined           ^>=0.6
     , text              ^>=1.2.3.2
     , text-conversions  >=0.2.0     && <0.4
