@@ -12,7 +12,7 @@ import Refined.Extras.Polymorphism.Internal.Terms (Calculus (..))
 import Refined.Extras.Polymorphism.Internal.Terms qualified as Terms
 import Test.Tasty (TestTree)
 import Test.Tasty qualified as T
-import Test.Tasty.Hedgehog qualified as TH
+import Utils qualified
 
 -- | @since 0.1.0.0
 props :: TestTree
@@ -25,7 +25,7 @@ props =
 
 impliesSucceeds :: TestTree
 impliesSucceeds = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "impliesBool recognizes proof" $
+  Utils.testPropertyCompat "impliesBool recognizes proof" "impliesSucceeds" $
     H.withTests limit $
       H.property $ do
         calculus <- H.forAll Gens.genImpliesA
@@ -33,7 +33,7 @@ impliesSucceeds = T.askOption $ \(MkMaxRuns limit) ->
 
 impliesFails :: TestTree
 impliesFails = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "impliesBool rejects proof" $
+  Utils.testPropertyCompat "impliesBool rejects proof" "impliesFails" $
     H.withTests limit $
       H.property $ do
         calculus <- H.forAll Gens.genNotImpliesA

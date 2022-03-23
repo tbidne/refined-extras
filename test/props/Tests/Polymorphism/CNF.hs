@@ -10,7 +10,7 @@ import MaxRuns (MaxRuns (..))
 import Refined.Extras.Polymorphism.Internal.Terms qualified as Terms
 import Test.Tasty (TestTree)
 import Test.Tasty qualified as T
-import Test.Tasty.Hedgehog qualified as TH
+import Utils qualified
 
 -- | @since 0.1.0.0
 props :: TestTree
@@ -24,7 +24,7 @@ props =
 
 toCNFTerminates :: TestTree
 toCNFTerminates = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "toCNF converts to CNF in finite time" $
+  Utils.testPropertyCompat "toCNF converts to CNF in finite time" "toCNFTerminates" $
     H.withTests limit $
       H.property $ do
         calculus <- H.forAll Gens.genCalculus
@@ -33,7 +33,7 @@ toCNFTerminates = T.askOption $ \(MkMaxRuns limit) ->
 
 isCNFRecognizes :: TestTree
 isCNFRecognizes = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "isCNF recognizes CNF formulae" $
+  Utils.testPropertyCompat "isCNF recognizes CNF formulae" "isCNFRecognizes" $
     H.withTests limit $
       H.property $ do
         calculus <- H.forAll Gens.genCNF
@@ -41,7 +41,7 @@ isCNFRecognizes = T.askOption $ \(MkMaxRuns limit) ->
 
 isCNFRejects :: TestTree
 isCNFRejects = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "isCNF rejects non-CNF formulae" $
+  Utils.testPropertyCompat "isCNF rejects non-CNF formulae" "isCNFRejects" $
     H.withTests limit $
       H.property $ do
         calculus <- H.forAll Gens.genNonCNF

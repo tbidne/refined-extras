@@ -1,8 +1,9 @@
-resolver:
-  url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/18/13.yaml
+resolver: nightly-2022-03-23
 packages:
 - .
 flags:
   refined:
     aeson: false
     quickcheck: false
+nix:
+  shell-file: nix/stack.nix

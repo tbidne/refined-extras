@@ -7,7 +7,7 @@ import Data.Either qualified as E
 import Data.Proxy (Proxy (..))
 import Gens.Numeric qualified as Gens
 import Gens.Text qualified as Gens
-import Hedgehog (Gen)
+import Hedgehog (Gen, PropertyName)
 import Hedgehog qualified as H
 import MaxRuns (MaxRuns (..))
 import Refined (EqualTo, Not, Positive, Predicate)
@@ -16,7 +16,7 @@ import Refined.Extras.Predicates.Foldable (All, Any, None)
 import Refined.Extras.Predicates.Text (Alpha, Digit)
 import Test.Tasty (TestName, TestTree)
 import Test.Tasty qualified as T
-import Test.Tasty.Hedgehog qualified as TH
+import Utils qualified
 
 -- | @since 0.1.0.0
 props :: TestTree
@@ -44,22 +44,22 @@ foldableProps =
     ]
 
 allFoldableSucceeds :: TestTree
-allFoldableSucceeds = xSucceeds (Proxy @(All Positive)) Gens.genPositives "All succeeds"
+allFoldableSucceeds = xSucceeds (Proxy @(All Positive)) Gens.genPositives "All succeeds" "allFoldableSucceeds"
 
 allFoldableFails :: TestTree
-allFoldableFails = xFails (Proxy @(All Positive)) Gens.genPositivesWithZero "All fails"
+allFoldableFails = xFails (Proxy @(All Positive)) Gens.genPositivesWithZero "All fails" "allFoldableFails"
 
 anyFoldableSucceeds :: TestTree
-anyFoldableSucceeds = xSucceeds (Proxy @(Any (EqualTo 0))) Gens.genPositivesWithZero "Any succeeds"
+anyFoldableSucceeds = xSucceeds (Proxy @(Any (EqualTo 0))) Gens.genPositivesWithZero "Any succeeds" "anyFoldableSucceeds"
 
 anyFoldableFails :: TestTree
-anyFoldableFails = xFails (Proxy @(Any (EqualTo 0))) Gens.genPositives "Any fails"
+anyFoldableFails = xFails (Proxy @(Any (EqualTo 0))) Gens.genPositives "Any fails" "anyFoldableFails"
 
 noneFoldableSucceeds :: TestTree
-noneFoldableSucceeds = xSucceeds (Proxy @(None (EqualTo 0))) Gens.genPositives "None succeeds"
+noneFoldableSucceeds = xSucceeds (Proxy @(None (EqualTo 0))) Gens.genPositives "None succeeds" "noneFoldableSucceeds"
 
 noneFoldableFails :: TestTree
-noneFoldableFails = xFails (Proxy @(None (EqualTo 0))) Gens.genPositivesWithZero "None fails"
+noneFoldableFails = xFails (Proxy @(None (EqualTo 0))) Gens.genPositivesWithZero "None fails" "noneFoldableFails"
 
 -- | @since 0.1.0.0
 textProps :: TestTree
@@ -75,22 +75,22 @@ textProps =
     ]
 
 allTextSucceeds :: TestTree
-allTextSucceeds = xSucceeds (Proxy @(All Alpha)) Gens.genTextAlpha "All succeeds"
+allTextSucceeds = xSucceeds (Proxy @(All Alpha)) Gens.genTextAlpha "All succeeds" "allTextSucceeds"
 
 allTextFails :: TestTree
-allTextFails = xFails (Proxy @(All Alpha)) Gens.genTextAlphaWithDigit "All fails"
+allTextFails = xFails (Proxy @(All Alpha)) Gens.genTextAlphaWithDigit "All fails" "allTextFails"
 
 anyTextSucceeds :: TestTree
-anyTextSucceeds = xSucceeds (Proxy @(Any Digit)) Gens.genTextAlphaWithDigit "Any succeeds"
+anyTextSucceeds = xSucceeds (Proxy @(Any Digit)) Gens.genTextAlphaWithDigit "Any succeeds" "anyTextSucceeds"
 
 anyTextFails :: TestTree
-anyTextFails = xFails (Proxy @(Any Digit)) Gens.genTextAlpha "Any fails"
+anyTextFails = xFails (Proxy @(Any Digit)) Gens.genTextAlpha "Any fails" "anyTextFails"
 
 noneTextSucceeds :: TestTree
-noneTextSucceeds = xSucceeds (Proxy @(None Digit)) Gens.genTextAlpha "None succeeds"
+noneTextSucceeds = xSucceeds (Proxy @(None Digit)) Gens.genTextAlpha "None succeeds" "noneTextSucceeds"
 
 noneTextFails :: TestTree
-noneTextFails = xFails (Proxy @(None Digit)) Gens.genTextAlphaWithDigit "None fails"
+noneTextFails = xFails (Proxy @(None Digit)) Gens.genTextAlphaWithDigit "None fails" "noneTextFails"
 
 -- | @since 0.1.0.0
 lazyTextProps :: TestTree
@@ -106,22 +106,22 @@ lazyTextProps =
     ]
 
 allLazyTextSucceeds :: TestTree
-allLazyTextSucceeds = xSucceeds (Proxy @(All Alpha)) Gens.genLazyTextAlpha "All succeeds"
+allLazyTextSucceeds = xSucceeds (Proxy @(All Alpha)) Gens.genLazyTextAlpha "All succeeds" "allLazyTextSucceeds"
 
 allLazyTextFails :: TestTree
-allLazyTextFails = xFails (Proxy @(All Alpha)) Gens.genLazyTextAlphaWithDigit "All fails"
+allLazyTextFails = xFails (Proxy @(All Alpha)) Gens.genLazyTextAlphaWithDigit "All fails" "allLazyTextFails"
 
 anyLazyTextSucceeds :: TestTree
-anyLazyTextSucceeds = xSucceeds (Proxy @(Any Digit)) Gens.genLazyTextAlphaWithDigit "Any succeeds"
+anyLazyTextSucceeds = xSucceeds (Proxy @(Any Digit)) Gens.genLazyTextAlphaWithDigit "Any succeeds" "anyLazyTextSucceeds"
 
 anyLazyTextFails :: TestTree
-anyLazyTextFails = xFails (Proxy @(Any Digit)) Gens.genLazyTextAlpha "Any fails"
+anyLazyTextFails = xFails (Proxy @(Any Digit)) Gens.genLazyTextAlpha "Any fails" "anyLazyTextFails"
 
 noneLazyTextSucceeds :: TestTree
-noneLazyTextSucceeds = xSucceeds (Proxy @(None Digit)) Gens.genLazyTextAlpha "None succeeds"
+noneLazyTextSucceeds = xSucceeds (Proxy @(None Digit)) Gens.genLazyTextAlpha "None succeeds" "noneLazyTextSucceeds"
 
 noneLazyTextFails :: TestTree
-noneLazyTextFails = xFails (Proxy @(None Digit)) Gens.genLazyTextAlphaWithDigit "None fails"
+noneLazyTextFails = xFails (Proxy @(None Digit)) Gens.genLazyTextAlphaWithDigit "None fails" "noneLazyTextFails"
 
 -- | @since 0.1.0.0
 byteStringProps :: TestTree
@@ -137,22 +137,22 @@ byteStringProps =
     ]
 
 allByteStringSucceeds :: TestTree
-allByteStringSucceeds = xSucceeds (Proxy @(All Digit)) Gens.genByteStringDigit "All succeeds"
+allByteStringSucceeds = xSucceeds (Proxy @(All Digit)) Gens.genByteStringDigit "All succeeds" "allByteStringSucceeds"
 
 allByteStringFails :: TestTree
-allByteStringFails = xFails (Proxy @(All Digit)) Gens.genByteStringDigitWithAlpha "All fails"
+allByteStringFails = xFails (Proxy @(All Digit)) Gens.genByteStringDigitWithAlpha "All fails" "allByteStringFails"
 
 anyByteStringSucceeds :: TestTree
-anyByteStringSucceeds = xSucceeds (Proxy @(Any (Not Digit))) Gens.genByteStringDigitWithAlpha "Any succeeds"
+anyByteStringSucceeds = xSucceeds (Proxy @(Any (Not Digit))) Gens.genByteStringDigitWithAlpha "Any succeeds" "anyByteStringSucceeds"
 
 anyByteStringFails :: TestTree
-anyByteStringFails = xFails (Proxy @(Any (Not Digit))) Gens.genByteStringDigit "Any fails"
+anyByteStringFails = xFails (Proxy @(Any (Not Digit))) Gens.genByteStringDigit "Any fails" "anyByteStringFails"
 
 noneByteStringSucceeds :: TestTree
-noneByteStringSucceeds = xSucceeds (Proxy @(None (Not Digit))) Gens.genByteStringDigit "None succeeds"
+noneByteStringSucceeds = xSucceeds (Proxy @(None (Not Digit))) Gens.genByteStringDigit "None succeeds" "noneByteStringSucceeds"
 
 noneByteStringFails :: TestTree
-noneByteStringFails = xFails (Proxy @(None (Not Digit))) Gens.genByteStringDigitWithAlpha "None fails"
+noneByteStringFails = xFails (Proxy @(None (Not Digit))) Gens.genByteStringDigitWithAlpha "None fails" "noneByteStringFails"
 
 -- | @since 0.1.0.0
 lazyByteStringProps :: TestTree
@@ -168,22 +168,22 @@ lazyByteStringProps =
     ]
 
 allLazyByteStringSucceeds :: TestTree
-allLazyByteStringSucceeds = xSucceeds (Proxy @(All Digit)) Gens.genLazyByteStringDigit "All succeeds"
+allLazyByteStringSucceeds = xSucceeds (Proxy @(All Digit)) Gens.genLazyByteStringDigit "All succeeds" "allLazyByteStringSucceeds"
 
 allLazyByteStringFails :: TestTree
-allLazyByteStringFails = xFails (Proxy @(All Digit)) Gens.genLazyByteStringDigitWithAlpha "All fails"
+allLazyByteStringFails = xFails (Proxy @(All Digit)) Gens.genLazyByteStringDigitWithAlpha "All fails" "allLazyByteStringFails"
 
 anyLazyByteStringSucceeds :: TestTree
-anyLazyByteStringSucceeds = xSucceeds (Proxy @(Any (Not Digit))) Gens.genLazyByteStringDigitWithAlpha "Any succeeds"
+anyLazyByteStringSucceeds = xSucceeds (Proxy @(Any (Not Digit))) Gens.genLazyByteStringDigitWithAlpha "Any succeeds" "anyLazyByteStringSucceeds"
 
 anyLazyByteStringFails :: TestTree
-anyLazyByteStringFails = xFails (Proxy @(Any (Not Digit))) Gens.genLazyByteStringDigit "Any fails"
+anyLazyByteStringFails = xFails (Proxy @(Any (Not Digit))) Gens.genLazyByteStringDigit "Any fails" "anyLazyByteStringFails"
 
 noneLazyByteStringSucceeds :: TestTree
-noneLazyByteStringSucceeds = xSucceeds (Proxy @(None (Not Digit))) Gens.genLazyByteStringDigit "None succeeds"
+noneLazyByteStringSucceeds = xSucceeds (Proxy @(None (Not Digit))) Gens.genLazyByteStringDigit "None succeeds" "noneLazyByteStringSucceeds"
 
 noneLazyByteStringFails :: TestTree
-noneLazyByteStringFails = xFails (Proxy @(None (Not Digit))) Gens.genLazyByteStringDigitWithAlpha "None fails"
+noneLazyByteStringFails = xFails (Proxy @(None (Not Digit))) Gens.genLazyByteStringDigitWithAlpha "None fails" "noneLazyByteStringFails"
 
 xSucceeds ::
   forall p a.
@@ -191,6 +191,7 @@ xSucceeds ::
   Proxy p ->
   Gen a ->
   TestName ->
+  PropertyName ->
   TestTree
 xSucceeds = xTest E.isRight
 
@@ -200,6 +201,7 @@ xFails ::
   Proxy p ->
   Gen a ->
   TestName ->
+  PropertyName ->
   TestTree
 xFails = xTest E.isLeft
 
@@ -210,9 +212,10 @@ xTest ::
   Proxy p ->
   Gen a ->
   TestName ->
+  PropertyName ->
   TestTree
-xTest eitherFn _ genFn desc = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty desc $
+xTest eitherFn _ genFn desc propName = T.askOption $ \(MkMaxRuns limit) ->
+  Utils.testPropertyCompat desc propName $
     H.withTests limit $
       H.property $ do
         vals <- H.forAll genFn

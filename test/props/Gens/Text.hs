@@ -27,7 +27,7 @@ import Data.ByteString.Lazy qualified as LBS
 import Data.Char qualified as C
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Text.Conversions qualified as TConv
+import Data.Text.Encoding qualified as TEnc
 import Data.Text.Lazy qualified as LT
 import Data.Word (Word8)
 import Hedgehog (MonadGen)
@@ -70,7 +70,7 @@ genLazyTextAlphaWithDigit :: MonadGen m => m LT.Text
 genLazyTextAlphaWithDigit = LT.fromStrict <$> genTextAlphaWithDigit
 
 genByteStringDigit :: MonadGen m => m ByteString
-genByteStringDigit = TConv.unUTF8 . TConv.convertText <$> genTextX HG.digit
+genByteStringDigit = TEnc.encodeUtf8 <$> genTextX HG.digit
 
 genLazyByteStringDigit :: MonadGen m => m LBS.ByteString
 genLazyByteStringDigit = LBS.fromStrict <$> genByteStringDigit
@@ -80,7 +80,7 @@ genByteStringDigitWithAlpha = do
   digits <- genTextX HG.digit
   c <- HG.alpha
   let s = c : T.unpack digits
-  TConv.unUTF8 . TConv.convertText <$> HG.shuffle s
+  TEnc.encodeUtf8 . T.pack <$> HG.shuffle s
 
 genLazyByteStringDigitWithAlpha :: MonadGen m => m LBS.ByteString
 genLazyByteStringDigitWithAlpha = LBS.fromStrict <$> genByteStringDigitWithAlpha

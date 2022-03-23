@@ -43,7 +43,7 @@ import Refined.Extras.Predicates.Text
   )
 import Test.Tasty (TestTree)
 import Test.Tasty qualified as T
-import Test.Tasty.Hedgehog qualified as TH
+import Utils qualified
 
 -- | @since 0.1.0.0
 props :: TestTree
@@ -72,7 +72,7 @@ symbolProps =
 
 symEqualToCharSucceeds :: TestTree
 symEqualToCharSucceeds = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "Char symEqualTo succeeds" $
+  Utils.testPropertyCompat "Char symEqualTo succeeds" "symEqualToCharSucceeds" $
     H.withTests limit $
       H.property $ do
         c <- H.forAll Gens.genChar
@@ -82,7 +82,7 @@ symEqualToCharSucceeds = T.askOption $ \(MkMaxRuns limit) ->
 
 symEqualToCharFails :: TestTree
 symEqualToCharFails = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "Char symEqualTo fails" $
+  Utils.testPropertyCompat "Char symEqualTo fails" "symEqualToCharFails" $
     H.withTests limit $
       H.property $ do
         c <- H.forAll HG.alpha
@@ -90,7 +90,7 @@ symEqualToCharFails = T.askOption $ \(MkMaxRuns limit) ->
 
 symEqualToStringSucceeds :: TestTree
 symEqualToStringSucceeds = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "String symEqualTo succeeds" $
+  Utils.testPropertyCompat "String symEqualTo succeeds" "symEqualToStringSucceeds" $
     H.withTests limit $
       H.property $ do
         str <- H.forAll $ Gens.genStringX Gens.genChar
@@ -100,7 +100,7 @@ symEqualToStringSucceeds = T.askOption $ \(MkMaxRuns limit) ->
 
 symEqualToStringFails :: TestTree
 symEqualToStringFails = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "String symEqualTo fails" $
+  Utils.testPropertyCompat "String symEqualTo fails" "symEqualToStringFails" $
     H.withTests limit $
       H.property $ do
         str <- H.forAll $ Gens.genStringX HG.alpha
@@ -108,7 +108,7 @@ symEqualToStringFails = T.askOption $ \(MkMaxRuns limit) ->
 
 symEqualToTextSucceeds :: TestTree
 symEqualToTextSucceeds = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "Text symEqualTo succeeds" $
+  Utils.testPropertyCompat "Text symEqualTo succeeds" "symEqualToTextSucceeds" $
     H.withTests limit $
       H.property $ do
         txt <- H.forAll $ Gens.genTextX Gens.genChar
@@ -119,7 +119,7 @@ symEqualToTextSucceeds = T.askOption $ \(MkMaxRuns limit) ->
 
 symEqualToTextFails :: TestTree
 symEqualToTextFails = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "Text symEqualTo fails" $
+  Utils.testPropertyCompat "Text symEqualTo fails" "symEqualToTextFails" $
     H.withTests limit $
       H.property $ do
         txt <- H.forAll $ Gens.genTextX HG.alpha
@@ -127,7 +127,7 @@ symEqualToTextFails = T.askOption $ \(MkMaxRuns limit) ->
 
 symEqualToLazyTextSucceeds :: TestTree
 symEqualToLazyTextSucceeds = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "Lazy Text symEqualTo succeeds" $
+  Utils.testPropertyCompat "Lazy Text symEqualTo succeeds" "symEqualToLazyTextSucceeds" $
     H.withTests limit $
       H.property $ do
         txt <- H.forAll $ Gens.genLazyTextX Gens.genChar
@@ -138,7 +138,7 @@ symEqualToLazyTextSucceeds = T.askOption $ \(MkMaxRuns limit) ->
 
 symEqualToLazyTextFails :: TestTree
 symEqualToLazyTextFails = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "Lazy Text symEqualTo fails" $
+  Utils.testPropertyCompat "Lazy Text symEqualTo fails" "symEqualToLazyTextFails" $
     H.withTests limit $
       H.property $ do
         txt <- H.forAll $ Gens.genLazyTextX HG.alpha
@@ -146,7 +146,7 @@ symEqualToLazyTextFails = T.askOption $ \(MkMaxRuns limit) ->
 
 charUnicodeProps :: TestTree
 charUnicodeProps = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "Char unicode properties" $
+  Utils.testPropertyCompat "Char unicode properties" "charUnicodeProps" $
     H.withTests limit $
       H.property $ do
         c <- H.forAll HG.unicode
@@ -164,7 +164,7 @@ charUnicodeProps = T.askOption $ \(MkMaxRuns limit) ->
 
 charLatin1Props :: TestTree
 charLatin1Props = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "Char latin1 properties" $
+  Utils.testPropertyCompat "Char latin1 properties" "charLatin1Props" $
     H.withTests limit $
       H.property $ do
         c <- H.forAll HG.latin1
@@ -181,7 +181,7 @@ charLatin1Props = T.askOption $ \(MkMaxRuns limit) ->
 
 word8Latin1Props :: TestTree
 word8Latin1Props = T.askOption $ \(MkMaxRuns limit) ->
-  TH.testProperty "Word8 latin1 properties" $
+  Utils.testPropertyCompat "Word8 latin1 properties" "word8Latin1Props" $
     H.withTests limit $
       H.property $ do
         w <- H.forAll (Gens.genWord8X HG.latin1)
