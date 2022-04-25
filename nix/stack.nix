@@ -1,5 +1,5 @@
 let
-  compilerVersion = "ghc921";
+  compilerVersion = "ghc922";
   lock = builtins.fromJSON (builtins.readFile ../flake.lock);
   pkgs = import
     (fetchTarball {
@@ -10,7 +10,7 @@ let
   compiler = pkgs.haskell.packages."${compilerVersion}";
 in
 pkgs.haskell.lib.buildStackProject {
-  name = "algebra-simple";
+  name = "refined-extras";
 
   buildInputs = with pkgs; [
     git
