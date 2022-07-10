@@ -4,7 +4,7 @@ import System.Environment.Guard (ExpectEnv (..), guardOrElse')
 import Test.DocTest qualified as DT
 
 main :: IO ()
-main = do
+main =
   guardOrElse'
     "RUN_DOCTEST"
     ExpectEnvSet
@@ -29,6 +29,7 @@ exts =
   [ "-XConstraintKinds",
     "-XDataKinds",
     "-XDeriveGeneric",
+    "-XDerivingStrategies",
     "-XFlexibleContexts",
     "-XFlexibleInstances",
     "-XImportQualifiedPost",

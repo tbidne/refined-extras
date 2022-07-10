@@ -43,7 +43,7 @@ import Refined (Not, Predicate (..), RefineException (..))
 -- @since 0.1.0.0
 type All :: Type -> Type
 data All p
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -80,14 +80,14 @@ instance Predicate p Word8 => Predicate (All p) LBS.ByteString where
 -- @since 0.1.0.0
 type Any :: Type -> Type
 data Any p
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
 
 -- | @since 0.1.0.0
 instance (Foldable f, Predicate p a) => Predicate (Any p) (f a) where
-  validate _ xs = anyFoldableSatisfies err (validate proxy) xs
+  validate _ = anyFoldableSatisfies err (validate proxy)
     where
       proxy = Proxy @p
       err = RefineOtherException (Ty.typeRep proxy) "No element satisfied the predicate"

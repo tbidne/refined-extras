@@ -87,7 +87,7 @@ import Refined (Predicate (..), RefineException (..))
 -- @since 0.1.0.0
 type SymEqualTo :: TL.Symbol -> Type
 data SymEqualTo c
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -215,7 +215,7 @@ instance KnownSymbol c => Predicate (SymEqualTo c) LT.Text where
 -- @since 0.1.0.0
 type Space :: Type
 data Space
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -240,7 +240,7 @@ instance Predicate Space Char where
 -- @since 0.1.0.0
 type Lower :: Type
 data Lower
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -265,7 +265,7 @@ instance Predicate Lower Char where
 -- @since 0.1.0.0
 type Upper :: Type
 data Upper
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -293,7 +293,7 @@ instance Predicate Upper Char where
 -- @since 0.1.0.0
 type Alpha :: Type
 data Alpha
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -321,7 +321,7 @@ instance Predicate Alpha Char where
 -- @since 0.1.0.0
 type AlphaNum :: Type
 data AlphaNum
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -346,7 +346,7 @@ instance Predicate AlphaNum Char where
 -- @since 0.1.0.0
 type Print :: Type
 data Print
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -371,7 +371,7 @@ instance Predicate Print Char where
 -- @since 0.1.0.0
 type Letter :: Type
 data Letter
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -396,7 +396,7 @@ instance Predicate Letter Char where
 -- @since 0.1.0.0
 type Mark :: Type
 data Mark
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -421,7 +421,7 @@ instance Predicate Mark Char where
 -- @since 0.1.0.0
 type Number :: Type
 data Number
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -446,7 +446,7 @@ instance Predicate Number Char where
 -- @since 0.1.0.0
 type Punctuation :: Type
 data Punctuation
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -471,7 +471,7 @@ instance Predicate Punctuation Char where
 -- @since 0.1.0.0
 type Symbol :: Type
 data Symbol
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -496,7 +496,7 @@ instance Predicate Symbol Char where
 -- @since 0.1.0.0
 type Separator :: Type
 data Separator
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -525,7 +525,7 @@ instance Predicate Separator Char where
 -- @since 0.1.0.0
 type Control :: Type
 data Control
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -559,7 +559,7 @@ instance Predicate Control Word8 where
 -- @since 0.1.0.0
 type Digit :: Type
 data Digit
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -593,7 +593,7 @@ instance Predicate Digit Word8 where
 -- @since 0.1.0.0
 type OctDigit :: Type
 data OctDigit
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -630,7 +630,7 @@ instance Predicate OctDigit Word8 where
 -- @since 0.1.0.0
 type HexDigit :: Type
 data HexDigit
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -664,7 +664,7 @@ instance Predicate HexDigit Word8 where
 -- @since 0.1.0.0
 type Ascii :: Type
 data Ascii
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -698,7 +698,7 @@ instance Predicate Ascii Word8 where
 -- @since 0.1.0.0
 type Latin1 :: Type
 data Latin1
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -732,7 +732,7 @@ instance Predicate Latin1 Word8 where
 -- @since 0.1.0.0
 type AsciiUpper :: Type
 data AsciiUpper
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -766,7 +766,7 @@ instance Predicate AsciiUpper Word8 where
 -- @since 0.1.0.0
 type AsciiLower :: Type
 data AsciiLower
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -805,7 +805,7 @@ instance Predicate AsciiLower Word8 where
 -- @since 0.1.0.0
 type AsciiAlpha :: Type
 data AsciiAlpha
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )
@@ -847,7 +847,7 @@ instance Predicate AsciiAlpha Word8 where
 -- @since 0.1.0.0
 type AsciiAlphaNum :: Type
 data AsciiAlphaNum
-  deriving
+  deriving stock
     ( -- | @since 0.1.0.0
       Generic
     )

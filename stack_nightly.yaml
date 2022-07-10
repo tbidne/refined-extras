@@ -1,4 +1,4 @@
-resolver: lts-19.14
+resolver: nightly-2022-07-07
 packages:
 - .
 ghc-options:
@@ -13,5 +13,6 @@ flags:
     quickcheck: false
 extra-deps:
 - env-guard-0.2@sha256:59410eed9b9ddbd115760a59c7170927320d8612e414701d323a0c8985c97523,1251
+- refined-0.6.3@sha256:347cef8788e6eb8813fea918566ad3afa1bf329c90713d91e60dfe63cbab3dad,2839
 nix:
-  shell-file: nix/stack_lts-19.nix
+  shell-file: nix/stack_nightly.nix

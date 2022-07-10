@@ -18,7 +18,7 @@ import Hedgehog.Range qualified as HR
 import Refined.Extras.Polymorphism.Internal.Terms (Calculus (..))
 
 data Prop = A | B | C | D
-  deriving (Eq, Show)
+  deriving stock (Eq, Show)
 
 genCalculus :: MonadGen m => m (Calculus Prop)
 -- be careful with depth > 4, some of these formulae can take a long time

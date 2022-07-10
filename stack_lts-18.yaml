@@ -1,4 +1,4 @@
-resolver: lts-19.14
+resolver: lts-18.28
 packages:
 - .
 ghc-options:
@@ -14,4 +14,4 @@ flags:
 extra-deps:
 - env-guard-0.2@sha256:59410eed9b9ddbd115760a59c7170927320d8612e414701d323a0c8985c97523,1251
 nix:
-  shell-file: nix/stack_lts-19.nix
+  shell-file: nix/stack_lts-18.nix

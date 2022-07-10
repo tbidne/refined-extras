@@ -18,7 +18,7 @@ data Calculus a
   | CAnd !(Calculus a) !(Calculus a)
   | COr !(Calculus a) !(Calculus a)
   | CXor !(Calculus a) !(Calculus a)
-  deriving (Show)
+  deriving stock (Show)
 
 -- | @since 0.1.0.0
 instance Eq a => Eq (Calculus a) where
