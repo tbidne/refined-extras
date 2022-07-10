@@ -20,7 +20,7 @@ import Data.Text qualified as T
 import Data.Text.Conversions (UTF8 (..))
 import Data.Text.Conversions qualified as TConv
 import Data.Text.Lazy qualified as LT
-import Data.Typeable (Proxy (..), Typeable)
+import Data.Typeable (Proxy (..))
 import Data.Typeable qualified as Ty
 import Data.Word (Word8)
 import GHC.Generics (Generic)
@@ -50,7 +50,7 @@ data All p
 
 -- | @since 0.1.0.0
 instance (Foldable f, Predicate p a) => Predicate (All p) (f a) where
-  validate _ xs = allFoldableSatisfies (validate @p Proxy) xs
+  validate _ = allFoldableSatisfies (validate @p Proxy)
 
 -- | @since 0.1.0.0
 instance Predicate p Char => Predicate (All p) Text where
@@ -86,14 +86,14 @@ data Any p
     )
 
 -- | @since 0.1.0.0
-instance (Foldable f, Predicate p a, Typeable p) => Predicate (Any p) (f a) where
+instance (Foldable f, Predicate p a) => Predicate (Any p) (f a) where
   validate _ xs = anyFoldableSatisfies err (validate proxy) xs
     where
       proxy = Proxy @p
       err = RefineOtherException (Ty.typeRep proxy) "No element satisfied the predicate"
 
 -- | @since 0.1.0.0
-instance (Predicate p Char, Typeable p) => Predicate (Any p) Text where
+instance (Predicate p Char) => Predicate (Any p) Text where
   validate _ txt = anyTextSatisfies err (validate proxy) txt
     where
       proxy = Proxy @p
@@ -101,7 +101,7 @@ instance (Predicate p Char, Typeable p) => Predicate (Any p) Text where
       err = RefineOtherException (Ty.typeRep proxy) msg
 
 -- | @since 0.1.0.0
-instance (Predicate p Char, Typeable p) => Predicate (Any p) LT.Text where
+instance (Predicate p Char) => Predicate (Any p) LT.Text where
   validate _ txt = anyLazyTextSatisfies err (validate proxy) txt
     where
       proxy = Proxy @p
@@ -109,7 +109,7 @@ instance (Predicate p Char, Typeable p) => Predicate (Any p) LT.Text where
       err = RefineOtherException (Ty.typeRep proxy) (LT.toStrict msg)
 
 -- | @since 0.1.0.0
-instance (Predicate p Word8, Typeable p) => Predicate (Any p) ByteString where
+instance (Predicate p Word8) => Predicate (Any p) ByteString where
   validate _ bs = anyByteStringSatisfies err (validate proxy) bs
     where
       proxy = Proxy @p
@@ -121,7 +121,7 @@ instance (Predicate p Word8, Typeable p) => Predicate (Any p) ByteString where
           (TConv.decodeConvertText (UTF8 bs))
 
 -- | @since 0.1.0.0
-instance (Predicate p Word8, Typeable p) => Predicate (Any p) LBS.ByteString where
+instance (Predicate p Word8) => Predicate (Any p) LBS.ByteString where
   validate _ bs = anyLazyByteStringSatisfies err (validate proxy) bs
     where
       proxy = Proxy @p
