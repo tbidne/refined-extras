@@ -3,8 +3,10 @@ name:               refined-extras
 version:            0.1.0.0
 license:            BSD-3-Clause
 license-file:       LICENSE
-tested-with:        GHC ==8.10.7 || ==9.0.2 || ==9.2.3
-copyright:          2021 Thomas Bidne
+tested-with:
+  GHC ==8.10.7 || ==9.0.2 || ==9.2.7 || ==9.4.5 || ==9.6.1
+
+copyright:          2021-2023 Thomas Bidne
 author:             Thomas Bidne
 maintainer:         tbidne@protonmail.com
 homepage:           https://github.com/tbidne/refined-extras/
@@ -57,9 +59,9 @@ library
     Refined.Extras.Utils
 
   build-depends:
-    , base              >=4.14.0.0  && <4.17
+    , base              >=4.14.0.0  && <4.19
     , bytestring        >=0.10.12.0 && <0.12
-    , refined           ^>=0.6
+    , refined           >=0.6       && <0.9
     , text              >=1.2.3.2   && <2.1
     , text-conversions  >=0.2.0     && <0.4
     , these-skinny      ^>=0.7.4
@@ -103,12 +105,12 @@ test-suite props
   build-depends:
     , base
     , bytestring
-    , hedgehog        >=1.0.2   && <1.2
+    , hedgehog        >=1.0.2   && <1.3
     , refined
     , refined-extras
     , tagged          ^>=0.8.6
     , tasty
-    , tasty-hedgehog  >=1.0.0.2 && <1.3
+    , tasty-hedgehog  >=1.0.0.2 && <1.5
     , text
 
   hs-source-dirs:   test/props
@@ -120,7 +122,7 @@ test-suite doctest
   main-is:          Main.hs
   build-depends:
     , base
-    , doctest    >=0.16.3 && <0.21
+    , doctest    >=0.16.3 && <0.22
     , env-guard  ^>=0.2
 
   hs-source-dirs:   test/doctest

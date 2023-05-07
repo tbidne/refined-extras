@@ -153,7 +153,7 @@ impliesBoolNotFalse :: TestTree
 impliesBoolNotFalse = THU.testCase "Not A /=> A" $ do
   False @=? demote (Proxy @(ImpliesBool (Not A) A))
 
-requiresNonZero :: p :=> NonZero => Refined p Int -> ()
+requiresNonZero :: (p :=> NonZero) => Refined p Int -> ()
 requiresNonZero _ = ()
 
 type Demote :: forall k. k -> Constraint

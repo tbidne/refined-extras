@@ -1,0 +1,54 @@
+name: "cabal"
+
+on:
+  push:
+    branches:
+      - main
+      - release
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  cabal:
+    strategy:
+      fail-fast: false
+      matrix:
+        ghc:
+          - "8.10.7"
+          - "9.0.2"
+          - "9.2.7"
+          - "9.4.5"
+          - "9.6.1"
+        os:
+          - "macos-latest"
+          - "ubuntu-latest"
+          - "windows-latest"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: haskell/actions/setup@v2
+        with:
+          ghc-version: ${{ matrix.ghc }}
+
+      - name: Compile
+        run: cabal build
+
+      - name: Doc Tests
+        if: ${{ matrix.ghc == '9.6.1' && matrix.os != 'windows-latest' }}
+        run : |
+          cabal configure \
+            --enable-tests \
+            --write-ghc-environment-files always
+          cabal build
+          RUN_DOCTEST=1 cabal test doctest
+
+      - name: Unit Tests
+        run: cabal test unit
+
+      - name: Property Tests
+        run: cabal test props --test-options '--hedgehog-tests 10000'

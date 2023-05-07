@@ -53,19 +53,19 @@ instance (Foldable f, Predicate p a) => Predicate (All p) (f a) where
   validate _ = allFoldableSatisfies (validate @p Proxy)
 
 -- | @since 0.1.0.0
-instance Predicate p Char => Predicate (All p) Text where
+instance (Predicate p Char) => Predicate (All p) Text where
   validate _ = allTextSatisfies (validate @p Proxy)
 
 -- | @since 0.1.0.0
-instance Predicate p Char => Predicate (All p) LT.Text where
+instance (Predicate p Char) => Predicate (All p) LT.Text where
   validate _ = allLazyTextSatisfies (validate @p Proxy)
 
 -- | @since 0.1.0.0
-instance Predicate p Word8 => Predicate (All p) ByteString where
+instance (Predicate p Word8) => Predicate (All p) ByteString where
   validate _ = allByteStringSatisfies (validate @p Proxy)
 
 -- | @since 0.1.0.0
-instance Predicate p Word8 => Predicate (All p) LBS.ByteString where
+instance (Predicate p Word8) => Predicate (All p) LBS.ByteString where
   validate _ = allLazyByteStringSatisfies (validate @p Proxy)
 
 -- | Predicate for any element satisfying some predicate.
@@ -139,13 +139,13 @@ instance (Predicate p Word8) => Predicate (Any p) LBS.ByteString where
 -- Nothing
 --
 -- >>> showRefineException <$> validate @(None Negative) Proxy [3,-1,2,5]
--- Just "RefineNotException (Not (Any (LessThan 0)))"
+-- Just "RefineNotException (Not * (Any (LessThan 0)))"
 --
 -- @since 0.1.0.0
 type None :: Type -> Type
 type None p = Not (Any p)
 
-allFoldableSatisfies :: Foldable f => (a -> Maybe b) -> f a -> Maybe b
+allFoldableSatisfies :: (Foldable f) => (a -> Maybe b) -> f a -> Maybe b
 allFoldableSatisfies = allSatisfies foldr
 
 allTextSatisfies :: (Char -> Maybe b) -> Text -> Maybe b
@@ -163,7 +163,7 @@ allLazyByteStringSatisfies = allSatisfies LBS.foldr
 allSatisfies :: ((a -> Maybe b -> Maybe b) -> Maybe c -> d) -> (a -> Maybe b) -> d
 allSatisfies foldFn testPred = foldFn (\x acc -> testPred x <|> acc) Nothing
 
-anyFoldableSatisfies :: Foldable f => b -> (a -> Maybe b) -> f a -> Maybe b
+anyFoldableSatisfies :: (Foldable f) => b -> (a -> Maybe b) -> f a -> Maybe b
 anyFoldableSatisfies = anySatisfies foldr
 
 anyTextSatisfies :: b -> (Char -> Maybe b) -> Text -> Maybe b

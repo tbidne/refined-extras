@@ -20,12 +20,12 @@ import Refined.Extras.Polymorphism.Internal.Terms (Calculus (..))
 data Prop = A | B | C | D
   deriving stock (Eq, Show)
 
-genCalculus :: MonadGen m => m (Calculus Prop)
+genCalculus :: (MonadGen m) => m (Calculus Prop)
 -- be careful with depth > 4, some of these formulae can take a long time
 -- to reduce
 genCalculus = genDepth 4 >>= genCalculusHelper
 
-genCalculusHelper :: MonadGen m => Natural -> m (Calculus Prop)
+genCalculusHelper :: (MonadGen m) => Natural -> m (Calculus Prop)
 genCalculusHelper 0 = genAtom
 genCalculusHelper d = do
   HG.choice
@@ -36,7 +36,7 @@ genCalculusHelper d = do
       genXor d
     ]
 
-genAtom :: MonadGen m => m (Calculus Prop)
+genAtom :: (MonadGen m) => m (Calculus Prop)
 genAtom =
   HG.element
     [ CAtom A,
@@ -45,47 +45,47 @@ genAtom =
       CAtom D
     ]
 
-genNot :: MonadGen f => Natural -> f (Calculus Prop)
+genNot :: (MonadGen f) => Natural -> f (Calculus Prop)
 genNot d = CNot <$> genCalculusHelper (d - 1)
 
-genAnd :: MonadGen m => Natural -> m (Calculus Prop)
+genAnd :: (MonadGen m) => Natural -> m (Calculus Prop)
 genAnd = genBinary CAnd
 
-genOr :: MonadGen m => Natural -> m (Calculus Prop)
+genOr :: (MonadGen m) => Natural -> m (Calculus Prop)
 genOr = genBinary COr
 
-genXor :: MonadGen m => Natural -> m (Calculus Prop)
+genXor :: (MonadGen m) => Natural -> m (Calculus Prop)
 genXor = genBinary CXor
 
-genBinary :: MonadGen m => (Calculus Prop -> Calculus Prop -> Calculus Prop) -> Natural -> m (Calculus Prop)
+genBinary :: (MonadGen m) => (Calculus Prop -> Calculus Prop -> Calculus Prop) -> Natural -> m (Calculus Prop)
 genBinary _ 0 = genAtom
 genBinary cons d = do
   sub1 <- genCalculusHelper (d - 1)
   sub2 <- genCalculusHelper (d - 1)
   pure $ sub1 `cons` sub2
 
-genCNF :: MonadGen m => m (Calculus Prop)
+genCNF :: (MonadGen m) => m (Calculus Prop)
 genCNF = genDepth 5 >>= genCNFAndHelper
 
-genCNFAndHelper :: MonadGen m => Natural -> m (Calculus Prop)
+genCNFAndHelper :: (MonadGen m) => Natural -> m (Calculus Prop)
 genCNFAndHelper 0 = CAnd <$> genCNFAtom <*> genCNFAtom
 genCNFAndHelper d = CAnd <$> atomAnd <*> atomAnd
   where
     atomAnd = HG.choice [genCNFAndHelper (d - 1), genCNFOr, genCNFAtom]
 
-genCNFOr :: MonadGen m => m (Calculus Prop)
+genCNFOr :: (MonadGen m) => m (Calculus Prop)
 genCNFOr = genDepth 5 >>= genCNFOrHelper
 
-genCNFOrHelper :: MonadGen m => Natural -> m (Calculus Prop)
+genCNFOrHelper :: (MonadGen m) => Natural -> m (Calculus Prop)
 genCNFOrHelper 0 = COr <$> genCNFAtom <*> genCNFAtom
 genCNFOrHelper d = COr <$> atomOr <*> atomOr
   where
     atomOr = HG.choice [genCNFOrHelper (d - 1), genCNFAtom]
 
-genCNFAtom :: MonadGen m => m (Calculus Prop)
+genCNFAtom :: (MonadGen m) => m (Calculus Prop)
 genCNFAtom = HG.choice [CNot <$> genAtom, genAtom]
 
-genNonCNF :: MonadGen m => m (Calculus Prop)
+genNonCNF :: (MonadGen m) => m (Calculus Prop)
 genNonCNF =
   HG.choice
     [ genNonCNFNot,
@@ -93,14 +93,14 @@ genNonCNF =
       genXor 1
     ]
 
-genNonCNFOr :: MonadGen m => m (Calculus Prop)
+genNonCNFOr :: (MonadGen m) => m (Calculus Prop)
 genNonCNFOr =
   HG.choice
     [ COr <$> genAnd 1 <*> genAtom,
       COr <$> genAtom <*> genAnd 1
     ]
 
-genNonCNFNot :: MonadGen m => m (Calculus Prop)
+genNonCNFNot :: (MonadGen m) => m (Calculus Prop)
 genNonCNFNot =
   HG.choice
     [ CNot . CNot <$> genAtom,
@@ -109,10 +109,10 @@ genNonCNFNot =
       CNot <$> genXor 1
     ]
 
-genDepth :: MonadGen m => Int -> m Natural
+genDepth :: (MonadGen m) => Int -> m Natural
 genDepth upperBound = fromIntegral <$> HG.int (HR.constant 0 upperBound)
 
-genImpliesA :: MonadGen m => m (Calculus Prop)
+genImpliesA :: (MonadGen m) => m (Calculus Prop)
 genImpliesA = do
   HG.choice
     [ genA,
@@ -125,7 +125,7 @@ genImpliesA = do
   where
     genA = pure $ CAtom A
 
-genNotImpliesA :: MonadGen m => m (Calculus Prop)
+genNotImpliesA :: (MonadGen m) => m (Calculus Prop)
 genNotImpliesA = do
   HG.choice
     [ genNonA,

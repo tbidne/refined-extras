@@ -21,7 +21,7 @@ data Calculus a
   deriving stock (Show)
 
 -- | @since 0.1.0.0
-instance Eq a => Eq (Calculus a) where
+instance (Eq a) => Eq (Calculus a) where
   CAtom x == CAtom y = x == y
   CNot x == CNot y = x == y
   CAnd x1 x2 == CAnd y1 y2 = (x1 == y1) && (x2 == y2) || (x1 == y2) && (x2 == y1)
@@ -36,17 +36,17 @@ infixr 2 `COr`
 infixr 2 `CXor`
 
 -- | @since 0.1.0.0
-impliesBool :: Eq a => Calculus a -> Calculus a -> Bool
+impliesBool :: (Eq a) => Calculus a -> Calculus a -> Bool
 impliesBool q p
   | q == p = True
   | otherwise = impliesCNF (toCNF q) (toCNF p)
 
 -- | @since 0.1.0.0
-impliesCNF :: Eq a => Calculus a -> Calculus a -> Bool
+impliesCNF :: (Eq a) => Calculus a -> Calculus a -> Bool
 impliesCNF q p = impliesCNFHelper (q == p) q p
 
 -- | @since 0.1.0.0
-impliesCNFHelper :: Eq a => Bool -> Calculus a -> Calculus a -> Bool
+impliesCNFHelper :: (Eq a) => Bool -> Calculus a -> Calculus a -> Bool
 impliesCNFHelper True _ _ = True
 impliesCNFHelper _ q p | q == p = True
 impliesCNFHelper _ (q `CAnd` r) p = impliesCNF q p || impliesCNF r p

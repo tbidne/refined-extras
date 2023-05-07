@@ -1,108 +1,62 @@
+.PHONY: repl doctest ;\
+	cic ci formatc format lint lintc ;\
+	haddock
+
 # core
 
-ARGS = ""
+T = ""
 
-.PHONY: build
-build:
-	if [ -z "$(ARGS)" ]; then \
-		cabal build; \
-	else \
-		cabal build $(ARGS); \
-	fi
-
-.PHONY: clean
-clean:
-	cabal clean
-
-.PHONY: test
-test:
-	if [ -z "$(ARGS)" ]; then \
-		RUN_DOCTEST=1 cabal test; \
-	else \
-		RUN_DOCTEST=1 cabal test $(ARGS); \
-	fi
-
-.PHONY: doctest
-doctest:
-	RUN_DOCTEST=1 cabal test doctest
-
-.PHONY: unit
-unit:
-	cabal test unit
-
-.PHONY: props
-props:
-	cabal test props
-
-.PHONY: repl
 repl:
-	if [ -z "$(ARGS)" ]; then \
-		cabal repl; \
+	if [ -z "$(T)" ]; then \
+		cabal repl refined-extras; \
 	else \
-		cabal repl $(ARGS); \
+		cabal repl $(T); \
 	fi
 
-.PHONY: watch
-watch:
-	ghcid --command "cabal repl $(ARGS)"
+doctest:
+	cabal build --write-ghc-environment-files=always; \
+	RUN_DOCTEST=1 cabal test doctest; \
+	rm .ghc.environment.*
 
 # ci
 
-.PHONY: cic
-cic: formatc lintc haddockc
+cic: formatc lintc
 
-.PHONY: ci
 ci: lint format
 
 # formatting
 
-.PHONY: formatc
-formatc: cabalfmtc hsformatc nixpkgsfmtc
+EXCLUDE_BUILD := ! -path "./.*" ! -path "./*dist-newstyle/*" ! -path "./*stack-work/*"
+FIND_HS := find . -type f -name "*hs" $(EXCLUDE_BUILD)
+FIND_CABAL := find . -type f -name "*.cabal" $(EXCLUDE_BUILD)
 
-.PHONY: format
-format: cabalfmt hsformat nixpkgsfmt
+formatc:
+	nixpkgs-fmt ./ --check && \
+	$(FIND_CABAL) | xargs cabal-fmt --check && \
+	$(FIND_HS) | xargs ormolu --mode check
 
-.PHONY: hsformat
-hsformat:
-	nix run github:tbidne/nix-hs-tools/0.6#ormolu -- --mode inplace
-
-.PHONY: hsformatc
-hsformatc:
-	nix run github:tbidne/nix-hs-tools/0.6#ormolu -- --mode check
-
-.PHONY: cabalfmt
-cabalfmt:
-	nix run github:tbidne/nix-hs-tools/0.6#cabal-fmt -- --inplace
-
-.PHONY: cabalfmtc
-cabalfmtc:
-	nix run github:tbidne/nix-hs-tools/0.6#cabal-fmt -- --check
-
-.PHONY: nixpkgsfmt
-nixpkgsfmt:
-	nix run github:tbidne/nix-hs-tools/0.6#nixpkgs-fmt
-
-.PHONY: nixpkgsfmtc
-nixpkgsfmtc:
-	nix run github:tbidne/nix-hs-tools/0.6#nixpkgs-fmt -- --check
+format:
+	nixpkgs-fmt ./ && \
+	$(FIND_CABAL) | xargs cabal-fmt --inplace && \
+	$(FIND_HS) | xargs ormolu -i
 
 # linting
 
-.PHONY: lint
 lint:
-	nix run github:tbidne/nix-hs-tools/0.6#hlint -- --refact
+	$(FIND_HS) | xargs -I % sh -c " \
+		hlint \
+		--ignore-glob=dist-newstyle \
+		--ignore-glob=stack-work \
+		--refactor \
+		--with-refactor=refactor \
+		--refactor-options=-i \
+		%"
 
-.PHONY: lintc
 lintc:
-	nix run github:tbidne/nix-hs-tools/0.6#hlint
+	hlint . --ignore-glob=dist-newstyle --ignore-glob=stack-work
 
-.PHONY: haddock
 haddock:
 	cabal haddock --haddock-hyperlink-source --haddock-quickjump ;\
 	mkdir -p docs/ ;\
 	find docs/ -type f | xargs -I % sh -c "rm -r %" ;\
-	cp -r dist-newstyle/build/x86_64-linux/ghc-9.2.3/refined-extras-0.1.0.0/doc/html/refined-extras/* docs/
-
-.PHONY: haddockc
-haddockc:
-	nix run github:tbidne/nix-hs-tools/0.6#haddock-cov
+	cp -r dist-newstyle/build/x86_64-linux/ghc-9.4.4/refined-extras-0.1.0.0/doc/html/refined-extras/* docs/

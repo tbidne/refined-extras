@@ -93,7 +93,7 @@ data SymEqualTo c
     )
 
 -- | @since 0.1.0.0
-instance KnownSymbol c => Predicate (SymEqualTo c) Char where
+instance (KnownSymbol c) => Predicate (SymEqualTo c) Char where
   validate proxy x = case sym of
     [y] ->
       if x == y
@@ -106,7 +106,7 @@ instance KnownSymbol c => Predicate (SymEqualTo c) Char where
       nonCharErr = T.singleton x <> " is not a single Char"
 
 -- | @since 0.1.0.0
-instance KnownSymbol c => Predicate (SymEqualTo c) String where
+instance (KnownSymbol c) => Predicate (SymEqualTo c) String where
   validate proxy txt
     | txt == sym = Nothing
     | otherwise = Just $ RefineOtherException (Ty.typeRep proxy) err
@@ -115,7 +115,7 @@ instance KnownSymbol c => Predicate (SymEqualTo c) String where
       err = T.pack $ txt <> " does not equal the predicate"
 
 -- | @since 0.1.0.0
-instance KnownSymbol c => Predicate (SymEqualTo c) Text where
+instance (KnownSymbol c) => Predicate (SymEqualTo c) Text where
   validate proxy txt
     | txt == sym = Nothing
     | otherwise = Just $ RefineOtherException (Ty.typeRep proxy) err
@@ -124,7 +124,7 @@ instance KnownSymbol c => Predicate (SymEqualTo c) Text where
       err = txt <> " does not equal the predicate"
 
 -- | @since 0.1.0.0
-instance KnownSymbol c => Predicate (SymEqualTo c) LT.Text where
+instance (KnownSymbol c) => Predicate (SymEqualTo c) LT.Text where
   validate proxy txt
     | txt' == sym = Nothing
     | otherwise = Just $ RefineOtherException (Ty.typeRep proxy) err

@@ -80,19 +80,19 @@ type family ToCNFHelper cond p where
 -- @since 0.1.0.0
 type IsCNF :: Type -> Bool
 type family IsCNF p where
--- Not p is CNF if p is an atom
+  -- Not p is CNF if p is an atom
   IsCNF (Not (And _ _)) = 'False
   IsCNF (Not (Or _ _)) = 'False
   IsCNF (Not (Xor _ _)) = 'False
   IsCNF (Not (Not _)) = 'False
   IsCNF (Not _) = 'True
--- Or p q is CNF as long as there are no nested Ands and p and q are CNF
+  -- Or p q is CNF as long as there are no nested Ands and p and q are CNF
   IsCNF (Or (And _ _) _) = 'False
   IsCNF (Or _ (And _ _)) = 'False
   IsCNF (Or p q) = IsCNF p B.&& IsCNF q
--- We want Xor completely eliminated
+  -- We want Xor completely eliminated
   IsCNF (Xor _ _) = 'False
--- And p q is CNF if both p and q are CNF
+  -- And p q is CNF if both p and q are CNF
   IsCNF (And p q) = IsCNF p B.&& IsCNF q
   IsCNF _ = 'True
 
@@ -102,22 +102,22 @@ type family IsCNF p where
 -- @since 0.1.0.0
 type Reduce :: Type -> Type
 type family Reduce p where
--- Eliminate Xor
+  -- Eliminate Xor
   Reduce (Xor p q) = (p || q) && (Not p || Not q)
--- Double negation
+  -- Double negation
   Reduce (Not (Not p)) = p
--- De Morgan's laws
+  -- De Morgan's laws
   Reduce (Not (p || q)) = Not p && Not q
   Reduce (Not (p && q)) = Not p || Not q
--- Remaining Not (i.e. Xor)
+  -- Remaining Not (i.e. Xor)
   Reduce (Not p) = Not (Reduce p)
--- Distributive laws
+  -- Distributive laws
   Reduce (Or (p && q) r) = (p || r) && (q || r)
   Reduce (Or r (p && q)) = (r || p) && (r || q)
--- Remaining Or, And
+  -- Remaining Or, And
   Reduce (p || q) = Reduce p || Reduce q
   Reduce (p && q) = Reduce p && Reduce q
--- Base case, nothing to reduce
+  -- Base case, nothing to reduce
   Reduce p = p
 
 -- | Equals that ignores order (e.g. (A && B) == (B && A)). Equality is
@@ -130,27 +130,27 @@ type family Reduce p where
 -- ==== __Examples__
 -- >>> :kind! PropEquals (A && (B && C)) ((A && B) && C)
 -- PropEquals (A && (B && C)) ((A && B) && C) :: Bool
--- = 'False
+-- = False
 --
 -- >>> :kind! PropEquals (And (A || B) (Not B)) (And (A || B) (Not B))
 -- PropEquals (And (A || B) (Not B)) (And (A || B) (Not B)) :: Bool
--- = 'True
+-- = True
 --
 -- >>> :kind! PropEquals (And A B) (And B B)
 -- PropEquals (And A B) (And B B) :: Bool
--- = 'False
+-- = False
 --
 -- >>> :kind! PropEquals (Not (And A B)) (Not (And B A))
 -- PropEquals (Not (And A B)) (Not (And B A)) :: Bool
--- = 'True
+-- = True
 --
 -- @since 0.1.0.0
 type PropEquals :: Type -> Type -> Bool
 type family PropEquals p q where
   PropEquals p p = 'True
--- need this in case we have nested And,Or,Xor.
+  -- need this in case we have nested And,Or,Xor.
   PropEquals (Not p) (Not q) = PropEquals p q
--- check reverse order for these 3
+  -- check reverse order for these 3
   PropEquals (And p q) (And r s) =
     (PropEquals p r B.&& PropEquals q s)
       B.|| (PropEquals p s B.&& PropEquals q r)

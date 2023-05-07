@@ -50,11 +50,11 @@ pattern MkRefined a <- Refined a
 --
 -- ==== __Examples__
 -- >>> first showRefineException $ refine @(And NonZero NonNegative) 0
--- Left "RefineAndException (And (NotEqualTo 0) (From 0)) (This (RefineOtherException (NotEqualTo 0) \"Value does equal 0\"))"
+-- Left "RefineAndException (And * * (NotEqualTo 0) (From 0)) (This (RefineOtherException (NotEqualTo 0) \"Value does equal 0\"))"
 --
 -- >>> let ex = refine @(Xor (And NonZero NonNegative) NonZero) 0
 -- >>> first showRefineException ex
--- Left "RefineXorException (Xor (And (NotEqualTo 0) (From 0)) (NotEqualTo 0)) (RefineAndException (And (NotEqualTo 0) (From 0)) (This (RefineOtherException (NotEqualTo 0) \"Value does equal 0\"))) (RefineOtherException (NotEqualTo 0) \"Value does equal 0\")"
+-- Left "RefineXorException (Xor * * (And * * (NotEqualTo 0) (From 0)) (NotEqualTo 0)) (RefineAndException (And * * (NotEqualTo 0) (From 0)) (This (RefineOtherException (NotEqualTo 0) \"Value does equal 0\"))) (RefineOtherException (NotEqualTo 0) \"Value does equal 0\")"
 --
 -- @since 0.1.0.0
 showRefineException :: RefineException -> String
@@ -93,7 +93,7 @@ showtRefineException (RefineOtherException ty txt) =
 --
 -- ==== __Examples__
 -- >>> first refineExceptionToType $ refine @(And NonZero NonNegative) 0
--- Left (And (NotEqualTo 0) (From 0))
+-- Left (And * * (NotEqualTo 0) (From 0))
 --
 -- @since 0.1.0.0
 refineExceptionToType :: RefineException -> TypeRep
@@ -104,7 +104,7 @@ refineExceptionToType (RefineXorException ty _) = ty
 refineExceptionToType (RefineSomeException ty _) = ty
 refineExceptionToType (RefineOtherException ty _) = ty
 
-showParens :: Show a => a -> Text
+showParens :: (Show a) => a -> Text
 showParens ty = "(" <> T.pack (show ty) <> ")"
 
 showThese :: These RefineException RefineException -> Text

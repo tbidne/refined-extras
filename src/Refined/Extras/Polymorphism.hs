@@ -120,19 +120,19 @@ infixr 1 :=>
 -- ==== __Examples__
 -- >>> :kind! ImpliesBool (Not A) B
 -- ImpliesBool (Not A) B :: Bool
--- = 'False
+-- = False
 --
 -- >>> :kind! ImpliesBool (Not (Not A)) A
 -- ImpliesBool (Not (Not A)) A :: Bool
--- = 'True
+-- = True
 --
 -- >>> :kind! ImpliesBool (A || B) A
 -- ImpliesBool (A || B) A :: Bool
--- = 'False
+-- = False
 --
 -- >>> :kind! ImpliesBool (A || (A && B)) A
 -- ImpliesBool (A || (A && B)) A :: Bool
--- = 'True
+-- = True
 --
 -- @since 0.1.0.0
 type ImpliesBool :: Type -> Type -> Bool
