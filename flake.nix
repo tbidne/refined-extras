@@ -6,49 +6,52 @@
   };
   inputs.flake-parts.url = "github:hercules-ci/flake-parts";
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  inputs.nix-hs-utils = {
+    url = "github:tbidne/nix-hs-utils";
+    inputs.flake-compat.follows = "flake-compat";
+  };
   outputs =
     inputs@{ flake-compat
     , flake-parts
     , nixpkgs
+    , nix-hs-utils
     , self
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       perSystem = { pkgs, ... }:
         let
-          buildTools = c: [
-            c.cabal-install
-            pkgs.gnumake
-            pkgs.zlib
-          ];
-          devTools = c: [
-            (hlib.dontCheck c.ghcid)
-            (hlib.dontCheck c.haskell-language-server)
-          ];
-          formatters = c: [
-            (hlib.dontCheck c.cabal-fmt)
-            (hlib.dontCheck c.hlint)
-            (hlib.dontCheck c.ormolu)
-            pkgs.nixpkgs-fmt
-          ];
           hlib = pkgs.haskell.lib;
           ghc-version = "ghc944";
-          compiler = pkgs.haskell.packages."${ghc-version}";
-          mkPkg = returnShellEnv: withDevTools:
-            compiler.developPackage {
-              inherit returnShellEnv;
+          compiler = pkgs.haskell.packages."${ghc-version}".override {
+            overrides = final: prev: {
+              apply-refact = prev.apply-refact_0_11_0_0;
+              # https://github.com/ddssff/listlike/issues/23
+              ListLike = hlib.dontCheck prev.ListLike;
+            };
+          };
+          mkPkg = returnShellEnv:
+            nix-hs-utils.mkHaskellPkg {
+              inherit compiler pkgs returnShellEnv;
               name = "refined-extras";
               root = ./.;
-              modifier = drv:
-                pkgs.haskell.lib.addBuildTools drv
-                  (buildTools compiler ++
-                    (if returnShellEnv then formatters compiler else [ ]) ++
-                    (if withDevTools then devTools compiler else [ ]));
             };
+          hs-dirs = "src test";
         in
         {
-          packages.default = mkPkg false false;
-          devShells.default = mkPkg true true;
-          devShells.ci = mkPkg true false;
+          packages.default = mkPkg false;
+          devShells.default = mkPkg true;
+
+          apps = {
+            format = nix-hs-utils.format {
+              inherit compiler hs-dirs pkgs;
+            };
+            lint = nix-hs-utils.lint {
+              inherit compiler hs-dirs pkgs;
+            };
+            lint-refactor = nix-hs-utils.lint-refactor {
+              inherit compiler hs-dirs pkgs;
+            };
+          };
         };
       systems = [
         "x86_64-darwin"
