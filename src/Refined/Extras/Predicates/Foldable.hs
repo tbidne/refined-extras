@@ -17,6 +17,7 @@ import Data.Kind (Type)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Encoding qualified as TEnc
+import Data.Text.Encoding.Error qualified as TEncError
 import Data.Text.Lazy qualified as LT
 import Data.Typeable (Proxy (Proxy))
 import Data.Typeable qualified as Ty
@@ -117,7 +118,7 @@ instance (Predicate p Word8) => Predicate (Any p) ByteString where
       proxy = Proxy @p
       prefix = "No element satisfied the predicate: "
       err = RefineOtherException (Ty.typeRep proxy) (prefix <> msg)
-      msg = TEnc.decodeUtf8Lenient bs
+      msg = decodeUtf8Lenient bs
 
 -- | @since 0.1.0.0
 instance (Predicate p Word8) => Predicate (Any p) BSL.ByteString where
@@ -126,7 +127,7 @@ instance (Predicate p Word8) => Predicate (Any p) BSL.ByteString where
       proxy = Proxy @p
       prefix = "No element satisfied the predicate: "
       err = RefineOtherException (Ty.typeRep proxy) (prefix <> msg)
-      msg = TEnc.decodeUtf8Lenient (BSL.toStrict bs)
+      msg = decodeUtf8Lenient (BSL.toStrict bs)
 
 -- | Predicate for no elements satisfying a predicate.
 --
@@ -180,3 +181,8 @@ anySatisfies foldFn defErr testPred = foldFn f (Just defErr)
     f x acc = case testPred x of
       Just _ -> acc
       Nothing -> Nothing
+
+-- | Because text used by GHC < 9.4 does not have decodeUtf8Lenient,
+-- apparently.
+decodeUtf8Lenient :: ByteString -> Text
+decodeUtf8Lenient = TEnc.decodeUtf8With TEncError.lenientDecode
