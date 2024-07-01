@@ -1,3 +1,5 @@
+{-# LANGUAGE PackageImports #-}
+
 -- | Utilities for "Refined".
 --
 -- @since 0.1.0.0
@@ -12,12 +14,25 @@ module Refined.Extras.Utils
   )
 where
 
+-- NOTE: The package-import is solely because doctest gets confused about
+-- these vs. these-skinny. Eventually we may remove doctests altogether,
+-- as they are quite fragile.
+
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.These (These (..))
 import Data.Typeable (TypeRep)
-import Refined (RefineException (..))
-import Refined.Unsafe.Type (Refined (..))
+import Refined
+  ( RefineException
+      ( RefineAndException,
+        RefineNotException,
+        RefineOrException,
+        RefineOtherException,
+        RefineSomeException,
+        RefineXorException
+      ),
+  )
+import Refined.Unsafe.Type (Refined (Refined))
+import "these-skinny" Data.These (These (That, These, This))
 
 -- $setup
 -- >>> :set -XAllowAmbiguousTypes

@@ -6,15 +6,14 @@ module Tests.Predicates.Text (props) where
 import Data.ByteString.Internal qualified as BSI
 import Data.Char qualified as C
 import Data.Either qualified as E
-import Data.Proxy (Proxy (..))
+import Data.Proxy (Proxy)
 import Data.Text qualified as T
 import Data.Text.Lazy qualified as LT
-import GHC.TypeLits (SomeSymbol (..))
+import GHC.TypeLits (SomeSymbol (SomeSymbol))
 import GHC.TypeLits qualified as TL
 import Gens.Text qualified as Gens
 import Hedgehog qualified as H
 import Hedgehog.Gen qualified as HG
-import MaxRuns (MaxRuns (..))
 import Refined (Predicate, RefineException, Refined)
 import Refined qualified as R
 import Refined.Extras.Predicates.Text
@@ -71,131 +70,120 @@ symbolProps =
     ]
 
 symEqualToCharSucceeds :: TestTree
-symEqualToCharSucceeds = T.askOption $ \(MkMaxRuns limit) ->
+symEqualToCharSucceeds =
   Utils.testPropertyCompat "Char symEqualTo succeeds" "symEqualToCharSucceeds" $
-    H.withTests limit $
-      H.property $ do
-        c <- H.forAll Gens.genChar
-        case TL.someSymbolVal [c] of
-          SomeSymbol sym ->
-            H.assert $ E.isRight $ refineFromProxy sym c
+    H.property $ do
+      c <- H.forAll Gens.genChar
+      case TL.someSymbolVal [c] of
+        SomeSymbol sym ->
+          H.assert $ E.isRight $ refineFromProxy sym c
 
 symEqualToCharFails :: TestTree
-symEqualToCharFails = T.askOption $ \(MkMaxRuns limit) ->
+symEqualToCharFails =
   Utils.testPropertyCompat "Char symEqualTo fails" "symEqualToCharFails" $
-    H.withTests limit $
-      H.property $ do
-        c <- H.forAll HG.alpha
-        H.assert $ E.isLeft $ R.refine @(SymEqualTo "1") c
+    H.property $ do
+      c <- H.forAll HG.alpha
+      H.assert $ E.isLeft $ R.refine @(SymEqualTo "1") c
 
 symEqualToStringSucceeds :: TestTree
-symEqualToStringSucceeds = T.askOption $ \(MkMaxRuns limit) ->
+symEqualToStringSucceeds =
   Utils.testPropertyCompat "String symEqualTo succeeds" "symEqualToStringSucceeds" $
-    H.withTests limit $
-      H.property $ do
-        str <- H.forAll $ Gens.genStringX Gens.genChar
-        case TL.someSymbolVal str of
-          SomeSymbol sym ->
-            H.assert $ E.isRight $ refineFromProxy sym str
+    H.property $ do
+      str <- H.forAll $ Gens.genStringX Gens.genChar
+      case TL.someSymbolVal str of
+        SomeSymbol sym ->
+          H.assert $ E.isRight $ refineFromProxy sym str
 
 symEqualToStringFails :: TestTree
-symEqualToStringFails = T.askOption $ \(MkMaxRuns limit) ->
+symEqualToStringFails =
   Utils.testPropertyCompat "String symEqualTo fails" "symEqualToStringFails" $
-    H.withTests limit $
-      H.property $ do
-        str <- H.forAll $ Gens.genStringX HG.alpha
-        H.assert $ E.isLeft $ R.refine @(SymEqualTo "1") str
+    H.property $ do
+      str <- H.forAll $ Gens.genStringX HG.alpha
+      H.assert $ E.isLeft $ R.refine @(SymEqualTo "1") str
 
 symEqualToTextSucceeds :: TestTree
-symEqualToTextSucceeds = T.askOption $ \(MkMaxRuns limit) ->
+symEqualToTextSucceeds =
   Utils.testPropertyCompat "Text symEqualTo succeeds" "symEqualToTextSucceeds" $
-    H.withTests limit $
-      H.property $ do
-        txt <- H.forAll $ Gens.genTextX Gens.genChar
-        let str = T.unpack txt
-        case TL.someSymbolVal str of
-          SomeSymbol sym ->
-            H.assert $ E.isRight $ refineFromProxy sym txt
+    H.property $ do
+      txt <- H.forAll $ Gens.genTextX Gens.genChar
+      let str = T.unpack txt
+      case TL.someSymbolVal str of
+        SomeSymbol sym ->
+          H.assert $ E.isRight $ refineFromProxy sym txt
 
 symEqualToTextFails :: TestTree
-symEqualToTextFails = T.askOption $ \(MkMaxRuns limit) ->
+symEqualToTextFails =
   Utils.testPropertyCompat "Text symEqualTo fails" "symEqualToTextFails" $
-    H.withTests limit $
-      H.property $ do
-        txt <- H.forAll $ Gens.genTextX HG.alpha
-        H.assert $ E.isLeft $ R.refine @(SymEqualTo "1") txt
+    H.property $ do
+      txt <- H.forAll $ Gens.genTextX HG.alpha
+      H.assert $ E.isLeft $ R.refine @(SymEqualTo "1") txt
 
 symEqualToLazyTextSucceeds :: TestTree
-symEqualToLazyTextSucceeds = T.askOption $ \(MkMaxRuns limit) ->
+symEqualToLazyTextSucceeds =
   Utils.testPropertyCompat "Lazy Text symEqualTo succeeds" "symEqualToLazyTextSucceeds" $
-    H.withTests limit $
-      H.property $ do
-        txt <- H.forAll $ Gens.genLazyTextX Gens.genChar
-        let str = T.unpack $ LT.toStrict txt
-        case TL.someSymbolVal str of
-          SomeSymbol sym ->
-            H.assert $ E.isRight $ refineFromProxy sym txt
+    H.property $ do
+      txt <- H.forAll $ Gens.genLazyTextX Gens.genChar
+      let str = T.unpack $ LT.toStrict txt
+      case TL.someSymbolVal str of
+        SomeSymbol sym ->
+          H.assert $ E.isRight $ refineFromProxy sym txt
 
 symEqualToLazyTextFails :: TestTree
-symEqualToLazyTextFails = T.askOption $ \(MkMaxRuns limit) ->
+symEqualToLazyTextFails =
   Utils.testPropertyCompat "Lazy Text symEqualTo fails" "symEqualToLazyTextFails" $
-    H.withTests limit $
-      H.property $ do
-        txt <- H.forAll $ Gens.genLazyTextX HG.alpha
-        H.assert $ E.isLeft $ R.refine @(SymEqualTo "1") txt
+    H.property $ do
+      txt <- H.forAll $ Gens.genLazyTextX HG.alpha
+      H.assert $ E.isLeft $ R.refine @(SymEqualTo "1") txt
 
 charUnicodeProps :: TestTree
-charUnicodeProps = T.askOption $ \(MkMaxRuns limit) ->
+charUnicodeProps =
   Utils.testPropertyCompat "Char unicode properties" "charUnicodeProps" $
-    H.withTests limit $
-      H.property $ do
-        c <- H.forAll HG.unicode
-        H.diff (R.refine @Space c) matches (C.isSpace c)
-        H.diff (R.refine @Lower c) matches (C.isLower c)
-        H.diff (R.refine @Upper c) matches (C.isUpper c)
-        H.diff (R.refine @Alpha c) matches (C.isAlpha c)
-        H.diff (R.refine @AlphaNum c) matches (C.isAlphaNum c)
-        H.diff (R.refine @Letter c) matches (C.isLetter c)
-        H.diff (R.refine @Mark c) matches (C.isMark c)
-        H.diff (R.refine @Number c) matches (C.isNumber c)
-        H.diff (R.refine @Punctuation c) matches (C.isPunctuation c)
-        H.diff (R.refine @Symbol c) matches (C.isSymbol c)
-        H.diff (R.refine @Separator c) matches (C.isSeparator c)
+    H.property $ do
+      c <- H.forAll HG.unicode
+      H.diff (R.refine @Space c) matches (C.isSpace c)
+      H.diff (R.refine @Lower c) matches (C.isLower c)
+      H.diff (R.refine @Upper c) matches (C.isUpper c)
+      H.diff (R.refine @Alpha c) matches (C.isAlpha c)
+      H.diff (R.refine @AlphaNum c) matches (C.isAlphaNum c)
+      H.diff (R.refine @Letter c) matches (C.isLetter c)
+      H.diff (R.refine @Mark c) matches (C.isMark c)
+      H.diff (R.refine @Number c) matches (C.isNumber c)
+      H.diff (R.refine @Punctuation c) matches (C.isPunctuation c)
+      H.diff (R.refine @Symbol c) matches (C.isSymbol c)
+      H.diff (R.refine @Separator c) matches (C.isSeparator c)
 
 charLatin1Props :: TestTree
-charLatin1Props = T.askOption $ \(MkMaxRuns limit) ->
+charLatin1Props =
   Utils.testPropertyCompat "Char latin1 properties" "charLatin1Props" $
-    H.withTests limit $
-      H.property $ do
-        c <- H.forAll HG.latin1
-        H.diff (R.refine @Control c) matches (C.isControl c)
-        H.diff (R.refine @Digit c) matches (C.isDigit c)
-        H.diff (R.refine @OctDigit c) matches (C.isOctDigit c)
-        H.diff (R.refine @HexDigit c) matches (C.isHexDigit c)
-        H.diff (R.refine @Ascii c) matches (C.isAscii c)
-        H.diff (R.refine @Latin1 c) matches (C.isLatin1 c)
-        H.diff (R.refine @AsciiLower c) matches (C.isAsciiLower c)
-        H.diff (R.refine @AsciiUpper c) matches (C.isAsciiUpper c)
-        H.diff (R.refine @AsciiAlpha c) matches (C.isAscii c && C.isAlpha c)
-        H.diff (R.refine @AsciiAlphaNum c) matches (C.isAscii c && C.isAlphaNum c)
+    H.property $ do
+      c <- H.forAll HG.latin1
+      H.diff (R.refine @Control c) matches (C.isControl c)
+      H.diff (R.refine @Digit c) matches (C.isDigit c)
+      H.diff (R.refine @OctDigit c) matches (C.isOctDigit c)
+      H.diff (R.refine @HexDigit c) matches (C.isHexDigit c)
+      H.diff (R.refine @Ascii c) matches (C.isAscii c)
+      H.diff (R.refine @Latin1 c) matches (C.isLatin1 c)
+      H.diff (R.refine @AsciiLower c) matches (C.isAsciiLower c)
+      H.diff (R.refine @AsciiUpper c) matches (C.isAsciiUpper c)
+      H.diff (R.refine @AsciiAlpha c) matches (C.isAscii c && C.isAlpha c)
+      H.diff (R.refine @AsciiAlphaNum c) matches (C.isAscii c && C.isAlphaNum c)
 
 word8Latin1Props :: TestTree
-word8Latin1Props = T.askOption $ \(MkMaxRuns limit) ->
+word8Latin1Props =
   Utils.testPropertyCompat "Word8 latin1 properties" "word8Latin1Props" $
-    H.withTests limit $
-      H.property $ do
-        w <- H.forAll (Gens.genWord8X HG.latin1)
-        let c = BSI.w2c w
-        H.diff (R.refine @Control w) matches (C.isControl c)
-        H.diff (R.refine @Digit w) matches (C.isDigit c)
-        H.diff (R.refine @OctDigit w) matches (C.isOctDigit c)
-        H.diff (R.refine @HexDigit w) matches (C.isHexDigit c)
-        H.diff (R.refine @Ascii w) matches (C.isAscii c)
-        H.diff (R.refine @Latin1 w) matches (C.isLatin1 c)
-        H.diff (R.refine @AsciiLower w) matches (C.isAsciiLower c)
-        H.diff (R.refine @AsciiUpper w) matches (C.isAsciiUpper c)
-        H.diff (R.refine @AsciiAlpha w) matches (C.isAscii c && C.isAlpha c)
-        H.diff (R.refine @AsciiAlphaNum w) matches (C.isAscii c && C.isAlphaNum c)
+    H.property $ do
+      w <- H.forAll (Gens.genWord8X HG.latin1)
+      let c = BSI.w2c w
+      H.diff (R.refine @Control w) matches (C.isControl c)
+      H.diff (R.refine @Digit w) matches (C.isDigit c)
+      H.diff (R.refine @OctDigit w) matches (C.isOctDigit c)
+      H.diff (R.refine @HexDigit w) matches (C.isHexDigit c)
+      H.diff (R.refine @Ascii w) matches (C.isAscii c)
+      H.diff (R.refine @Latin1 w) matches (C.isLatin1 c)
+      H.diff (R.refine @AsciiLower w) matches (C.isAsciiLower c)
+      H.diff (R.refine @AsciiUpper w) matches (C.isAsciiUpper c)
+      H.diff (R.refine @AsciiAlpha w) matches (C.isAscii c && C.isAlpha c)
+      H.diff (R.refine @AsciiAlphaNum w) matches (C.isAscii c && C.isAlphaNum c)
 
 refineFromProxy ::
   forall s a.

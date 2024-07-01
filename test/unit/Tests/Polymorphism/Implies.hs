@@ -7,7 +7,7 @@
 module Tests.Polymorphism.Implies (tests) where
 
 import Data.Kind (Constraint)
-import Data.Proxy (Proxy (..))
+import Data.Proxy (Proxy (Proxy))
 import Refined
   ( Negative,
     NonZero,

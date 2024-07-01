@@ -4,9 +4,15 @@ version:            0.1.0.0
 license:            BSD-3-Clause
 license-file:       LICENSE
 tested-with:
-  GHC ==8.10.7 || ==9.0.2 || ==9.2.8 || ==9.4.7 || ==9.6.3 || ==9.8.1
+  GHC ==8.10.7
+   || ==9.0.2
+   || ==9.2.8
+   || ==9.4.8
+   || ==9.6.5
+   || ==9.8.1
+   || ==9.10.1
 
-copyright:          2021-2023 Thomas Bidne
+copyright:          2021-2024 Thomas Bidne
 author:             Thomas Bidne
 maintainer:         tbidne@protonmail.com
 homepage:           https://github.com/tbidne/refined-extras/
@@ -24,7 +30,7 @@ source-repository head
   type:     git
   location: https://github.com/tbidne/refined-extras
 
-common common-exts
+common common-lang
   default-extensions:
     ConstraintKinds
     DataKinds
@@ -46,8 +52,10 @@ common common-exts
     TypeFamilies
     TypeOperators
 
+  default-language:   Haskell2010
+
 library
-  import:           common-exts
+  import:          common-lang
   exposed-modules:
     Refined.Extras
     Refined.Extras.Polymorphism
@@ -59,20 +67,19 @@ library
     Refined.Extras.Utils
 
   build-depends:
-    , base              >=4.14.0.0  && <4.20
+    , base              >=4.14.0.0  && <4.21
     , bytestring        >=0.10.12.0 && <0.13
     , refined           >=0.6       && <0.9
     , text              >=1.2.3.2   && <2.2
     , text-conversions  >=0.2.0     && <0.4
     , these-skinny      ^>=0.7.4
 
-  hs-source-dirs:   src
-  default-language: Haskell2010
+  hs-source-dirs:  src
 
 test-suite unit
-  import:           common-exts
-  type:             exitcode-stdio-1.0
-  main-is:          Main.hs
+  import:         common-lang
+  type:           exitcode-stdio-1.0
+  main-is:        Main.hs
   other-modules:
     Tests.Polymorphism.CNF
     Tests.Polymorphism.Implies
@@ -84,19 +91,17 @@ test-suite unit
     , tasty           >=1.1.0.3 && <1.6
     , tasty-hunit     >=0.9     && <0.11
 
-  hs-source-dirs:   test/unit
-  ghc-options:      -threaded -with-rtsopts=-N
-  default-language: Haskell2010
+  hs-source-dirs: test/unit
+  ghc-options:    -threaded -with-rtsopts=-N
 
 test-suite props
-  import:           common-exts
-  type:             exitcode-stdio-1.0
-  main-is:          Main.hs
+  import:         common-lang
+  type:           exitcode-stdio-1.0
+  main-is:        Main.hs
   other-modules:
     Gens.Numeric
     Gens.Polymorphism
     Gens.Text
-    MaxRuns
     Tests.Polymorphism.CNF
     Tests.Polymorphism.Implies
     Tests.Predicates.Foldable
@@ -109,23 +114,20 @@ test-suite props
     , hedgehog        >=1.0.2   && <1.5
     , refined
     , refined-extras
-    , tagged          ^>=0.8.6
     , tasty
     , tasty-hedgehog  >=1.0.0.2 && <1.5
     , text
 
-  hs-source-dirs:   test/props
-  ghc-options:      -threaded -with-rtsopts=-N
-  default-language: Haskell2010
+  hs-source-dirs: test/props
+  ghc-options:    -threaded -with-rtsopts=-N
 
 test-suite doctest
-  import:           common-exts
-  type:             exitcode-stdio-1.0
-  main-is:          Main.hs
+  import:         common-lang
+  type:           exitcode-stdio-1.0
+  main-is:        Main.hs
   build-depends:
     , base
     , doctest    >=0.16.3 && <0.23
     , env-guard  ^>=0.2
 
-  hs-source-dirs:   test/doctest
-  default-language: Haskell2010
+  hs-source-dirs: test/doctest

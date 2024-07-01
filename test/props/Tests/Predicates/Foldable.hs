@@ -4,12 +4,11 @@
 module Tests.Predicates.Foldable (props) where
 
 import Data.Either qualified as E
-import Data.Proxy (Proxy (..))
+import Data.Proxy (Proxy (Proxy))
 import Gens.Numeric qualified as Gens
 import Gens.Text qualified as Gens
 import Hedgehog (Gen, PropertyName)
 import Hedgehog qualified as H
-import MaxRuns (MaxRuns (..))
 import Refined (EqualTo, Not, Positive, Predicate)
 import Refined qualified as R
 import Refined.Extras.Predicates.Foldable (All, Any, None)
@@ -214,9 +213,8 @@ xTest ::
   TestName ->
   PropertyName ->
   TestTree
-xTest eitherFn _ genFn desc propName = T.askOption $ \(MkMaxRuns limit) ->
+xTest eitherFn _ genFn desc propName =
   Utils.testPropertyCompat desc propName $
-    H.withTests limit $
-      H.property $ do
-        vals <- H.forAll genFn
-        H.assert $ eitherFn $ R.refine @p vals
+    H.property $ do
+      vals <- H.forAll genFn
+      H.assert $ eitherFn $ R.refine @p vals

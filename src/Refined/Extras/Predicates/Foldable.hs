@@ -9,7 +9,7 @@ module Refined.Extras.Predicates.Foldable
   )
 where
 
-import Control.Applicative (Alternative (..))
+import Control.Applicative (Alternative ((<|>)))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LBS
@@ -17,14 +17,14 @@ import Data.Kind (Type)
 import Data.Maybe qualified as May
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Text.Conversions (UTF8 (..))
+import Data.Text.Conversions (UTF8 (UTF8))
 import Data.Text.Conversions qualified as TConv
 import Data.Text.Lazy qualified as LT
-import Data.Typeable (Proxy (..))
+import Data.Typeable (Proxy (Proxy))
 import Data.Typeable qualified as Ty
 import Data.Word (Word8)
 import GHC.Generics (Generic)
-import Refined (Not, Predicate (..), RefineException (..))
+import Refined (Not, Predicate (validate), RefineException (RefineOtherException))
 
 -- $setup
 -- >>> :set -XOverloadedStrings

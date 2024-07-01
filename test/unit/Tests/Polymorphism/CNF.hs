@@ -3,7 +3,7 @@
 -- @since 0.1.0.0
 module Tests.Polymorphism.CNF (tests) where
 
-import Data.Proxy (Proxy (..))
+import Data.Proxy (Proxy (Proxy))
 import Refined
   ( Not,
     Xor,
