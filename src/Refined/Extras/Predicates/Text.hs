@@ -192,7 +192,7 @@ instance (KnownSymbol c) => Predicate (SymEqualTo c) LT.Text where
 -- have to arbitrarily assume the 'Data.ByteString.ByteString' shares its 'Text' encoding
 -- (i.e. UTF-8).
 --
--- One is defensible, but we choose option two, reasoning that it could be
+-- One is defensible, but we choose option four, reasoning that it could be
 -- useful to assert that a given bytestring contains only ascii numbers or
 -- alpha characters while avoiding the pitfalls of reusing predicates intended
 -- for arbitrary unicode.
