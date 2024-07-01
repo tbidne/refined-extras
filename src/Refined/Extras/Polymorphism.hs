@@ -18,7 +18,7 @@ module Refined.Extras.Polymorphism
 where
 
 import Data.Kind (Constraint, Type)
-import GHC.TypeLits (ErrorMessage (..), TypeError)
+import GHC.TypeLits (ErrorMessage (ShowType, Text, (:<>:)), TypeError)
 import Refined.Extras.Polymorphism.Internal (ImpliesCNF, ToCNF)
 
 -- $setup

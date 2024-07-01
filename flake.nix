@@ -1,59 +1,46 @@
 {
   description = "refined-extras flake";
-  inputs.flake-compat = {
-    url = "github:edolstra/flake-compat";
-    flake = false;
-  };
   inputs.flake-parts.url = "github:hercules-ci/flake-parts";
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-  inputs.nix-hs-utils = {
-    url = "github:tbidne/nix-hs-utils";
-    inputs.flake-compat.follows = "flake-compat";
-  };
+  inputs.nix-hs-utils.url = "github:tbidne/nix-hs-utils";
   outputs =
-    inputs@{ flake-compat
-    , flake-parts
-    , nixpkgs
-    , nix-hs-utils
-    , self
+    inputs@{
+      flake-parts,
+      nixpkgs,
+      nix-hs-utils,
+      self,
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
-      perSystem = { pkgs, ... }:
+      perSystem =
+        { pkgs, ... }:
         let
+          ghc-version = "ghc982";
+          compiler = pkgs.haskell.packages."${ghc-version}";
           hlib = pkgs.haskell.lib;
-          ghc-version = "ghc944";
-          compiler = pkgs.haskell.packages."${ghc-version}".override {
-            overrides = final: prev: {
-              apply-refact = prev.apply-refact_0_11_0_0;
-              # https://github.com/ddssff/listlike/issues/23
-              ListLike = hlib.dontCheck prev.ListLike;
-            };
-          };
-          mkPkg = returnShellEnv:
+          mkPkg =
+            returnShellEnv:
             nix-hs-utils.mkHaskellPkg {
               inherit compiler pkgs returnShellEnv;
               name = "refined-extras";
               root = ./.;
             };
-          hs-dirs = "src test";
+          compilerPkgs = {
+            inherit compiler pkgs;
+          };
         in
         {
           packages.default = mkPkg false;
           devShells.default = mkPkg true;
 
           apps = {
-            format = nix-hs-utils.format {
-              inherit compiler hs-dirs pkgs;
-            };
-            lint = nix-hs-utils.lint {
-              inherit compiler hs-dirs pkgs;
-            };
-            lint-refactor = nix-hs-utils.lint-refactor {
-              inherit compiler hs-dirs pkgs;
-            };
+            format = nix-hs-utils.format compilerPkgs;
+            lint = nix-hs-utils.lint compilerPkgs;
+            lintRefactor = nix-hs-utils.lintRefactor compilerPkgs;
           };
         };
       systems = [
+        "aarch64-darwin"
+        "aarch64-linux"
         "x86_64-darwin"
         "x86_64-linux"
       ];

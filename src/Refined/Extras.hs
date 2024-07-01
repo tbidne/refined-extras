@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-missing-import-lists #-}
+
 -- | Entry point for the library.
 --
 -- @since 0.1.0.0

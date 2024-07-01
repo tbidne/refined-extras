@@ -15,7 +15,15 @@ import GHC.Natural (Natural)
 import Hedgehog (MonadGen)
 import Hedgehog.Gen qualified as HG
 import Hedgehog.Range qualified as HR
-import Refined.Extras.Polymorphism.Internal.Terms (Calculus (..))
+import Refined.Extras.Polymorphism.Internal.Terms
+  ( Calculus
+      ( CAnd,
+        CAtom,
+        CNot,
+        COr,
+        CXor
+      ),
+  )
 
 data Prop = A | B | C | D
   deriving stock (Eq, Show)

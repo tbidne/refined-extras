@@ -46,7 +46,7 @@ type family ImpliesCNFHelper propEq q p where
   ImpliesCNFHelper _ p p = 'True
   ImpliesCNFHelper _ (q && r) p = ImpliesCNF q p B.|| ImpliesCNF r p
   ImpliesCNFHelper _ (q || r) p = ImpliesCNF q p B.&& ImpliesCNF r p
-  ImpliesCNFHelper _ q p = 'False
+  ImpliesCNFHelper _ _ _ = 'False
 
 -- | Transforms a predicate expression into conjunctive normal form.
 -- This /should/ be total for propositions (obviously other 'Type's will
@@ -160,4 +160,4 @@ type family PropEquals p q where
   PropEquals (Xor p q) (Xor r s) =
     (PropEquals p r B.&& PropEquals q s)
       B.|| (PropEquals p s B.&& PropEquals q r)
-  PropEquals p q = 'False
+  PropEquals _ _ = 'False

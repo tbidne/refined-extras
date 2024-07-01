@@ -40,7 +40,7 @@ where
 import Data.ByteString.Internal qualified as BS
 import Data.Char qualified as C
 import Data.Kind (Type)
-import Data.Proxy (Proxy (..))
+import Data.Proxy (Proxy (Proxy))
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Lazy qualified as LT
@@ -49,7 +49,7 @@ import Data.Word (Word8)
 import GHC.Generics (Generic)
 import GHC.TypeLits (KnownSymbol)
 import GHC.TypeLits qualified as TL
-import Refined (Predicate (..), RefineException (..))
+import Refined (Predicate (validate), RefineException (RefineOtherException))
 
 -- $setup
 -- >>> import Data.ByteString qualified as BS
