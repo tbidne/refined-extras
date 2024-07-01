@@ -67,12 +67,11 @@ library
     Refined.Extras.Utils
 
   build-depends:
-    , base              >=4.14.0.0  && <4.21
-    , bytestring        >=0.10.12.0 && <0.13
-    , refined           >=0.6       && <0.9
-    , text              >=1.2.3.2   && <2.2
-    , text-conversions  >=0.2.0     && <0.4
-    , these-skinny      ^>=0.7.4
+    , base          >=4.14.0.0  && <4.21
+    , bytestring    >=0.10.12.0 && <0.13
+    , refined       >=0.6       && <0.9
+    , text          >=1.2.3.2   && <2.2
+    , these-skinny  ^>=0.7.4
 
   hs-source-dirs:  src
 

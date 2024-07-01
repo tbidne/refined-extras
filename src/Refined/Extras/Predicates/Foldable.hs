@@ -12,19 +12,21 @@ where
 import Control.Applicative (Alternative ((<|>)))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Data.ByteString.Lazy qualified as LBS
+import Data.ByteString.Lazy qualified as BSL
 import Data.Kind (Type)
-import Data.Maybe qualified as May
 import Data.Text (Text)
 import Data.Text qualified as T
-import Data.Text.Conversions (UTF8 (UTF8))
-import Data.Text.Conversions qualified as TConv
+import Data.Text.Encoding qualified as TEnc
 import Data.Text.Lazy qualified as LT
 import Data.Typeable (Proxy (Proxy))
 import Data.Typeable qualified as Ty
 import Data.Word (Word8)
 import GHC.Generics (Generic)
-import Refined (Not, Predicate (validate), RefineException (RefineOtherException))
+import Refined
+  ( Not,
+    Predicate (validate),
+    RefineException (RefineOtherException),
+  )
 
 -- $setup
 -- >>> :set -XOverloadedStrings
@@ -65,7 +67,7 @@ instance (Predicate p Word8) => Predicate (All p) ByteString where
   validate _ = allByteStringSatisfies (validate @p Proxy)
 
 -- | @since 0.1.0.0
-instance (Predicate p Word8) => Predicate (All p) LBS.ByteString where
+instance (Predicate p Word8) => Predicate (All p) BSL.ByteString where
   validate _ = allLazyByteStringSatisfies (validate @p Proxy)
 
 -- | Predicate for any element satisfying some predicate.
@@ -115,22 +117,16 @@ instance (Predicate p Word8) => Predicate (Any p) ByteString where
       proxy = Proxy @p
       prefix = "No element satisfied the predicate: "
       err = RefineOtherException (Ty.typeRep proxy) (prefix <> msg)
-      msg =
-        May.fromMaybe
-          "<Could not decode UTF-8>"
-          (TConv.decodeConvertText (UTF8 bs))
+      msg = TEnc.decodeUtf8Lenient bs
 
 -- | @since 0.1.0.0
-instance (Predicate p Word8) => Predicate (Any p) LBS.ByteString where
+instance (Predicate p Word8) => Predicate (Any p) BSL.ByteString where
   validate _ bs = anyLazyByteStringSatisfies err (validate proxy) bs
     where
       proxy = Proxy @p
       prefix = "No element satisfied the predicate: "
       err = RefineOtherException (Ty.typeRep proxy) (prefix <> msg)
-      msg =
-        May.fromMaybe
-          "<Could not decode UTF-8>"
-          (TConv.decodeConvertText (UTF8 (LBS.toStrict bs)))
+      msg = TEnc.decodeUtf8Lenient (BSL.toStrict bs)
 
 -- | Predicate for no elements satisfying a predicate.
 --
@@ -157,8 +153,8 @@ allLazyTextSatisfies = allSatisfies LT.foldr
 allByteStringSatisfies :: (Word8 -> Maybe a) -> ByteString -> Maybe a
 allByteStringSatisfies = allSatisfies BS.foldr
 
-allLazyByteStringSatisfies :: (Word8 -> Maybe a) -> LBS.ByteString -> Maybe a
-allLazyByteStringSatisfies = allSatisfies LBS.foldr
+allLazyByteStringSatisfies :: (Word8 -> Maybe a) -> BSL.ByteString -> Maybe a
+allLazyByteStringSatisfies = allSatisfies BSL.foldr
 
 allSatisfies :: ((a -> Maybe b -> Maybe b) -> Maybe c -> d) -> (a -> Maybe b) -> d
 allSatisfies foldFn testPred = foldFn (\x acc -> testPred x <|> acc) Nothing
@@ -175,8 +171,8 @@ anyLazyTextSatisfies = anySatisfies LT.foldr
 anyByteStringSatisfies :: b -> (Word8 -> Maybe b) -> ByteString -> Maybe b
 anyByteStringSatisfies = anySatisfies BS.foldr
 
-anyLazyByteStringSatisfies :: b -> (Word8 -> Maybe b) -> LBS.ByteString -> Maybe b
-anyLazyByteStringSatisfies = anySatisfies LBS.foldr
+anyLazyByteStringSatisfies :: b -> (Word8 -> Maybe b) -> BSL.ByteString -> Maybe b
+anyLazyByteStringSatisfies = anySatisfies BSL.foldr
 
 anySatisfies :: ((a -> Maybe b -> Maybe b) -> Maybe c -> d) -> c -> (a -> Maybe e) -> d
 anySatisfies foldFn defErr testPred = foldFn f (Just defErr)
