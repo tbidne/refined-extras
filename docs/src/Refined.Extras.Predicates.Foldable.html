@@ -1,0 +1,543 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">-- | Predicates for 'Foldable'.</span><span>
+</span><span id="line-2"></span><span class="hs-comment">--</span><span>
+</span><span id="line-3"></span><span class="hs-comment">-- @since 0.1.0.0</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Refined.Extras.Predicates.Foldable</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * Elements</span></span><span>
+</span><span id="line-6"></span><span>    </span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#All"><span class="hs-identifier">All</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-7"></span><span>    </span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#Any"><span class="hs-identifier">Any</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-8"></span><span>    </span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#None"><span class="hs-identifier">None</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Applicative</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Alternative</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-operator">(&lt;|&gt;)</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">ByteString</span></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">BS</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.ByteString.Lazy</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">BSL</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Kind</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Type</span></span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Text</span></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">T</span></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text.Encoding</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">TEnc</span></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text.Encoding.Error</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">TEncError</span></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Text.Lazy</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">LT</span></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Typeable</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Proxy</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Proxy</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Typeable</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Ty</span></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Word</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Word8</span></span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Generics</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Generic</span></span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html"><span class="hs-identifier">Refined</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Not"><span class="hs-identifier">Not</span></a></span><span class="hs-special">,</span><span>
+</span><span id="line-28"></span><span>    </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier">Predicate</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier">validate</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#RefineException"><span class="hs-identifier">RefineException</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#RefineOtherException"><span class="hs-identifier">RefineOtherException</span></a></span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span class="hs-comment">-- $setup</span><span>
+</span><span id="line-33"></span><span class="hs-comment">-- &gt;&gt;&gt; :set -XOverloadedStrings</span><span>
+</span><span id="line-34"></span><span class="hs-comment">-- &gt;&gt;&gt; import Refined (NonZero, Negative)</span><span>
+</span><span id="line-35"></span><span class="hs-comment">-- &gt;&gt;&gt; import Refined.Extras.Utils (showRefineException)</span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="hs-comment">-- | Predicate for all elements satisfying some predicate.</span><span>
+</span><span id="line-38"></span><span class="hs-comment">--</span><span>
+</span><span id="line-39"></span><span class="hs-comment">-- ==== __Examples__</span><span>
+</span><span id="line-40"></span><span class="hs-comment">-- &gt;&gt;&gt; validate @(All NonZero) Proxy [1..5]</span><span>
+</span><span id="line-41"></span><span class="hs-comment">-- Nothing</span><span>
+</span><span id="line-42"></span><span class="hs-comment">--</span><span>
+</span><span id="line-43"></span><span class="hs-comment">-- &gt;&gt;&gt; showRefineException &lt;$&gt; validate @(All NonZero) Proxy [0..5]</span><span>
+</span><span id="line-44"></span><span class="hs-comment">-- Just &quot;RefineOtherException (NotEqualTo 0) \&quot;Value does equal 0\&quot;&quot;</span><span>
+</span><span id="line-45"></span><span class="hs-comment">--</span><span>
+</span><span id="line-46"></span><span class="hs-comment">-- @since 0.1.0.0</span><span>
+</span><span id="line-47"></span><span class="hs-keyword">type</span><span> </span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#All"><span class="hs-identifier hs-type">All</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Type</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Type</span></span><span>
+</span><span id="line-48"></span><span class="hs-keyword">data</span><span> </span><span id="All"><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#All"><span class="hs-identifier hs-var">All</span></a></span></span><span> </span><span id="local-6989586621679092832"><span class="annot"><a href="#local-6989586621679092832"><span class="hs-identifier hs-type">p</span></a></span></span><span>
+</span><span id="line-49"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="hs-keyword">stock</span></span><span>
+</span><span id="line-50"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- | @since 0.1.0.0</span></span><span>
+</span><span id="line-51"></span><span>      </span><span id="local-6989586621679092834"><span id="local-6989586621679092836"><span class="annot"><span class="annottext">(forall x. All p -&gt; Rep (All p) x)
+-&gt; (forall x. Rep (All p) x -&gt; All p) -&gt; Generic (All p)
+forall x. Rep (All p) x -&gt; All p
+forall x. All p -&gt; Rep (All p) x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+forall p x. Rep (All p) x -&gt; All p
+forall p x. All p -&gt; Rep (All p) x
+$cfrom :: forall p x. All p -&gt; Rep (All p) x
+from :: forall x. All p -&gt; Rep (All p) x
+$cto :: forall p x. Rep (All p) x -&gt; All p
+to :: forall x. Rep (All p) x -&gt; All p
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></span></span></span><span>
+</span><span id="line-52"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-53"></span><span>
+</span><span id="line-54"></span><span class="annot"><span class="hs-comment">-- | @since 0.1.0.0</span></span><span>
+</span><span id="line-55"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679092729"><span id="local-6989586621679092730"><span id="local-6989586621679092731"><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Foldable</span></span><span> </span><span class="annot"><a href="#local-6989586621679092729"><span class="hs-identifier hs-type">f</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092730"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092731"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#All"><span class="hs-identifier hs-type">All</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092730"><span class="hs-identifier hs-type">p</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679092729"><span class="hs-identifier hs-type">f</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092731"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-56"></span><span>  </span><span id="local-6989586621679092851"><span class="annot"><span class="annottext">validate :: Proxy (All p) -&gt; f a -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var hs-var hs-var hs-var">validate</span></a></span></span><span> </span><span class="annot"><span class="annottext">Proxy (All p)
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(a -&gt; Maybe RefineException) -&gt; f a -&gt; Maybe RefineException
+forall (f :: * -&gt; *) a b.
+Foldable f =&gt;
+(a -&gt; Maybe b) -&gt; f a -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#allFoldableSatisfies"><span class="hs-identifier hs-var">allFoldableSatisfies</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall {k} (p :: k) x.
+Predicate p x =&gt;
+Proxy p -&gt; x -&gt; Maybe RefineException
+forall p x. Predicate p x =&gt; Proxy p -&gt; x -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var">validate</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679092730"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy p
+forall {k} (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span class="hs-special">)</span><span>
+</span><span id="line-57"></span><span>
+</span><span id="line-58"></span><span class="annot"><span class="hs-comment">-- | @since 0.1.0.0</span></span><span>
+</span><span id="line-59"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679092739"><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092739"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#All"><span class="hs-identifier hs-type">All</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092739"><span class="hs-identifier hs-type">p</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-60"></span><span>  </span><span id="local-6989586621679092861"><span class="annot"><span class="annottext">validate :: Proxy (All p) -&gt; Text -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var hs-var hs-var hs-var">validate</span></a></span></span><span> </span><span class="annot"><span class="annottext">Proxy (All p)
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Char -&gt; Maybe RefineException) -&gt; Text -&gt; Maybe RefineException
+forall b. (Char -&gt; Maybe b) -&gt; Text -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#allTextSatisfies"><span class="hs-identifier hs-var">allTextSatisfies</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall {k} (p :: k) x.
+Predicate p x =&gt;
+Proxy p -&gt; x -&gt; Maybe RefineException
+forall p x. Predicate p x =&gt; Proxy p -&gt; x -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var">validate</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679092739"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy p
+forall {k} (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span class="hs-special">)</span><span>
+</span><span id="line-61"></span><span>
+</span><span id="line-62"></span><span class="annot"><span class="hs-comment">-- | @since 0.1.0.0</span></span><span>
+</span><span id="line-63"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679092743"><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092743"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#All"><span class="hs-identifier hs-type">All</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092743"><span class="hs-identifier hs-type">p</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LT.Text</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-64"></span><span>  </span><span id="local-6989586621679092871"><span class="annot"><span class="annottext">validate :: Proxy (All p) -&gt; Text -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var hs-var hs-var hs-var">validate</span></a></span></span><span> </span><span class="annot"><span class="annottext">Proxy (All p)
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Char -&gt; Maybe RefineException) -&gt; Text -&gt; Maybe RefineException
+forall b. (Char -&gt; Maybe b) -&gt; Text -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#allLazyTextSatisfies"><span class="hs-identifier hs-var">allLazyTextSatisfies</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall {k} (p :: k) x.
+Predicate p x =&gt;
+Proxy p -&gt; x -&gt; Maybe RefineException
+forall p x. Predicate p x =&gt; Proxy p -&gt; x -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var">validate</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679092743"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy p
+forall {k} (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span class="hs-special">)</span><span>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span class="annot"><span class="hs-comment">-- | @since 0.1.0.0</span></span><span>
+</span><span id="line-67"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679092747"><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092747"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word8</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#All"><span class="hs-identifier hs-type">All</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092747"><span class="hs-identifier hs-type">p</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-68"></span><span>  </span><span id="local-6989586621679092881"><span class="annot"><span class="annottext">validate :: Proxy (All p) -&gt; ByteString -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var hs-var hs-var hs-var">validate</span></a></span></span><span> </span><span class="annot"><span class="annottext">Proxy (All p)
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Word8 -&gt; Maybe RefineException)
+-&gt; ByteString -&gt; Maybe RefineException
+forall a. (Word8 -&gt; Maybe a) -&gt; ByteString -&gt; Maybe a
+</span><a href="Refined.Extras.Predicates.Foldable.html#allByteStringSatisfies"><span class="hs-identifier hs-var">allByteStringSatisfies</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall {k} (p :: k) x.
+Predicate p x =&gt;
+Proxy p -&gt; x -&gt; Maybe RefineException
+forall p x. Predicate p x =&gt; Proxy p -&gt; x -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var">validate</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679092747"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy p
+forall {k} (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span class="hs-special">)</span><span>
+</span><span id="line-69"></span><span>
+</span><span id="line-70"></span><span class="annot"><span class="hs-comment">-- | @since 0.1.0.0</span></span><span>
+</span><span id="line-71"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679092751"><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092751"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word8</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#All"><span class="hs-identifier hs-type">All</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092751"><span class="hs-identifier hs-type">p</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">BSL.ByteString</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-72"></span><span>  </span><span id="local-6989586621679092891"><span class="annot"><span class="annottext">validate :: Proxy (All p) -&gt; ByteString -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var hs-var hs-var hs-var">validate</span></a></span></span><span> </span><span class="annot"><span class="annottext">Proxy (All p)
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(Word8 -&gt; Maybe RefineException)
+-&gt; ByteString -&gt; Maybe RefineException
+forall a. (Word8 -&gt; Maybe a) -&gt; ByteString -&gt; Maybe a
+</span><a href="Refined.Extras.Predicates.Foldable.html#allLazyByteStringSatisfies"><span class="hs-identifier hs-var">allLazyByteStringSatisfies</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall {k} (p :: k) x.
+Predicate p x =&gt;
+Proxy p -&gt; x -&gt; Maybe RefineException
+forall p x. Predicate p x =&gt; Proxy p -&gt; x -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var">validate</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679092751"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy p
+forall {k} (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span class="hs-special">)</span><span>
+</span><span id="line-73"></span><span>
+</span><span id="line-74"></span><span class="hs-comment">-- | Predicate for any element satisfying some predicate.</span><span>
+</span><span id="line-75"></span><span class="hs-comment">--</span><span>
+</span><span id="line-76"></span><span class="hs-comment">-- ==== __Examples__</span><span>
+</span><span id="line-77"></span><span class="hs-comment">-- &gt;&gt;&gt; validate @(Any NonZero) Proxy [0,0,0,4]</span><span>
+</span><span id="line-78"></span><span class="hs-comment">-- Nothing</span><span>
+</span><span id="line-79"></span><span class="hs-comment">--</span><span>
+</span><span id="line-80"></span><span class="hs-comment">-- &gt;&gt;&gt; showRefineException &lt;$&gt; validate @(Any NonZero) Proxy [0,0,0]</span><span>
+</span><span id="line-81"></span><span class="hs-comment">-- Just &quot;RefineOtherException (NotEqualTo 0) \&quot;No element satisfied the predicate\&quot;&quot;</span><span>
+</span><span id="line-82"></span><span class="hs-comment">--</span><span>
+</span><span id="line-83"></span><span class="hs-comment">-- @since 0.1.0.0</span><span>
+</span><span id="line-84"></span><span class="hs-keyword">type</span><span> </span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#Any"><span class="hs-identifier hs-type">Any</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Type</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Type</span></span><span>
+</span><span id="line-85"></span><span class="hs-keyword">data</span><span> </span><span id="Any"><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#Any"><span class="hs-identifier hs-var">Any</span></a></span></span><span> </span><span id="local-6989586621679092893"><span class="annot"><a href="#local-6989586621679092893"><span class="hs-identifier hs-type">p</span></a></span></span><span>
+</span><span id="line-86"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="hs-keyword">stock</span></span><span>
+</span><span id="line-87"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- | @since 0.1.0.0</span></span><span>
+</span><span id="line-88"></span><span>      </span><span id="local-6989586621679092895"><span id="local-6989586621679092897"><span class="annot"><span class="annottext">(forall x. Any p -&gt; Rep (Any p) x)
+-&gt; (forall x. Rep (Any p) x -&gt; Any p) -&gt; Generic (Any p)
+forall x. Rep (Any p) x -&gt; Any p
+forall x. Any p -&gt; Rep (Any p) x
+forall a.
+(forall x. a -&gt; Rep a x) -&gt; (forall x. Rep a x -&gt; a) -&gt; Generic a
+forall p x. Rep (Any p) x -&gt; Any p
+forall p x. Any p -&gt; Rep (Any p) x
+$cfrom :: forall p x. Any p -&gt; Rep (Any p) x
+from :: forall x. Any p -&gt; Rep (Any p) x
+$cto :: forall p x. Rep (Any p) x -&gt; Any p
+to :: forall x. Rep (Any p) x -&gt; Any p
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Generic</span></span></span></span><span>
+</span><span id="line-89"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-90"></span><span>
+</span><span id="line-91"></span><span class="annot"><span class="hs-comment">-- | @since 0.1.0.0</span></span><span>
+</span><span id="line-92"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679092759"><span id="local-6989586621679092760"><span id="local-6989586621679092761"><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Foldable</span></span><span> </span><span class="annot"><a href="#local-6989586621679092759"><span class="hs-identifier hs-type">f</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092760"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092761"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#Any"><span class="hs-identifier hs-type">Any</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092760"><span class="hs-identifier hs-type">p</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679092759"><span class="hs-identifier hs-type">f</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092761"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-93"></span><span>  </span><span id="local-6989586621679092912"><span class="annot"><span class="annottext">validate :: Proxy (Any p) -&gt; f a -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var hs-var hs-var hs-var">validate</span></a></span></span><span> </span><span class="annot"><span class="annottext">Proxy (Any p)
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RefineException
+-&gt; (a -&gt; Maybe RefineException) -&gt; f a -&gt; Maybe RefineException
+forall (f :: * -&gt; *) b a.
+Foldable f =&gt;
+b -&gt; (a -&gt; Maybe b) -&gt; f a -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#anyFoldableSatisfies"><span class="hs-identifier hs-var">anyFoldableSatisfies</span></a></span><span> </span><span class="annot"><span class="annottext">RefineException
+</span><a href="#local-6989586621679092914"><span class="hs-identifier hs-var">err</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy p -&gt; a -&gt; Maybe RefineException
+forall {k} (p :: k) x.
+Predicate p x =&gt;
+Proxy p -&gt; x -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var">validate</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy p
+</span><a href="#local-6989586621679092915"><span class="hs-identifier hs-var">proxy</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-94"></span><span>    </span><span class="hs-keyword">where</span><span>
+</span><span id="line-95"></span><span>      </span><span id="local-6989586621679092915"><span class="annot"><span class="annottext">proxy :: Proxy p
+</span><a href="#local-6989586621679092915"><span class="hs-identifier hs-var hs-var">proxy</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall t. Proxy t
+forall {k} (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679092760"><span class="hs-identifier hs-type">p</span></a></span><span>
+</span><span id="line-96"></span><span>      </span><span id="local-6989586621679092914"><span class="annot"><span class="annottext">err :: RefineException
+</span><a href="#local-6989586621679092914"><span class="hs-identifier hs-var hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TypeRep -&gt; Text -&gt; RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#RefineOtherException"><span class="hs-identifier hs-var">RefineOtherException</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy p -&gt; TypeRep
+forall {k} (proxy :: k -&gt; *) (a :: k).
+Typeable a =&gt;
+proxy a -&gt; TypeRep
+</span><span class="hs-identifier hs-var">Ty.typeRep</span></span><span> </span><span class="annot"><span class="annottext">Proxy p
+</span><a href="#local-6989586621679092915"><span class="hs-identifier hs-var">proxy</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;No element satisfied the predicate&quot;</span></span><span>
+</span><span id="line-97"></span><span>
+</span><span id="line-98"></span><span class="annot"><span class="hs-comment">-- | @since 0.1.0.0</span></span><span>
+</span><span id="line-99"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679092770"><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092770"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#Any"><span class="hs-identifier hs-type">Any</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092770"><span class="hs-identifier hs-type">p</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-100"></span><span>  </span><span id="local-6989586621679092929"><span class="annot"><span class="annottext">validate :: Proxy (Any p) -&gt; Text -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var hs-var hs-var hs-var">validate</span></a></span></span><span> </span><span class="annot"><span class="annottext">Proxy (Any p)
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679092930"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679092930"><span class="hs-identifier hs-var">txt</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RefineException
+-&gt; (Char -&gt; Maybe RefineException) -&gt; Text -&gt; Maybe RefineException
+forall b. b -&gt; (Char -&gt; Maybe b) -&gt; Text -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#anyTextSatisfies"><span class="hs-identifier hs-var">anyTextSatisfies</span></a></span><span> </span><span class="annot"><span class="annottext">RefineException
+</span><a href="#local-6989586621679092932"><span class="hs-identifier hs-var">err</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy p -&gt; Char -&gt; Maybe RefineException
+forall {k} (p :: k) x.
+Predicate p x =&gt;
+Proxy p -&gt; x -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var">validate</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy p
+</span><a href="#local-6989586621679092933"><span class="hs-identifier hs-var">proxy</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679092930"><span class="hs-identifier hs-var">txt</span></a></span><span>
+</span><span id="line-101"></span><span>    </span><span class="hs-keyword">where</span><span>
+</span><span id="line-102"></span><span>      </span><span id="local-6989586621679092933"><span class="annot"><span class="annottext">proxy :: Proxy p
+</span><a href="#local-6989586621679092933"><span class="hs-identifier hs-var hs-var">proxy</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall t. Proxy t
+forall {k} (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679092770"><span class="hs-identifier hs-type">p</span></a></span><span>
+</span><span id="line-103"></span><span>      </span><span id="local-6989586621679092934"><span class="annot"><span class="annottext">msg :: Text
+</span><a href="#local-6989586621679092934"><span class="hs-identifier hs-var hs-var">msg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;No element satisfied the predicate: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679092930"><span class="hs-identifier hs-var">txt</span></a></span><span>
+</span><span id="line-104"></span><span>      </span><span id="local-6989586621679092932"><span class="annot"><span class="annottext">err :: RefineException
+</span><a href="#local-6989586621679092932"><span class="hs-identifier hs-var hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TypeRep -&gt; Text -&gt; RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#RefineOtherException"><span class="hs-identifier hs-var">RefineOtherException</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy p -&gt; TypeRep
+forall {k} (proxy :: k -&gt; *) (a :: k).
+Typeable a =&gt;
+proxy a -&gt; TypeRep
+</span><span class="hs-identifier hs-var">Ty.typeRep</span></span><span> </span><span class="annot"><span class="annottext">Proxy p
+</span><a href="#local-6989586621679092933"><span class="hs-identifier hs-var">proxy</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679092934"><span class="hs-identifier hs-var">msg</span></a></span><span>
+</span><span id="line-105"></span><span>
+</span><span id="line-106"></span><span class="annot"><span class="hs-comment">-- | @since 0.1.0.0</span></span><span>
+</span><span id="line-107"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679092774"><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092774"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#Any"><span class="hs-identifier hs-type">Any</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092774"><span class="hs-identifier hs-type">p</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LT.Text</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-108"></span><span>  </span><span id="local-6989586621679092948"><span class="annot"><span class="annottext">validate :: Proxy (Any p) -&gt; Text -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var hs-var hs-var hs-var">validate</span></a></span></span><span> </span><span class="annot"><span class="annottext">Proxy (Any p)
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679092949"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679092949"><span class="hs-identifier hs-var">txt</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RefineException
+-&gt; (Char -&gt; Maybe RefineException) -&gt; Text -&gt; Maybe RefineException
+forall b. b -&gt; (Char -&gt; Maybe b) -&gt; Text -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#anyLazyTextSatisfies"><span class="hs-identifier hs-var">anyLazyTextSatisfies</span></a></span><span> </span><span class="annot"><span class="annottext">RefineException
+</span><a href="#local-6989586621679092951"><span class="hs-identifier hs-var">err</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy p -&gt; Char -&gt; Maybe RefineException
+forall {k} (p :: k) x.
+Predicate p x =&gt;
+Proxy p -&gt; x -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var">validate</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy p
+</span><a href="#local-6989586621679092952"><span class="hs-identifier hs-var">proxy</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679092949"><span class="hs-identifier hs-var">txt</span></a></span><span>
+</span><span id="line-109"></span><span>    </span><span class="hs-keyword">where</span><span>
+</span><span id="line-110"></span><span>      </span><span id="local-6989586621679092952"><span class="annot"><span class="annottext">proxy :: Proxy p
+</span><a href="#local-6989586621679092952"><span class="hs-identifier hs-var hs-var">proxy</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall t. Proxy t
+forall {k} (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679092774"><span class="hs-identifier hs-type">p</span></a></span><span>
+</span><span id="line-111"></span><span>      </span><span id="local-6989586621679092953"><span class="annot"><span class="annottext">msg :: Text
+</span><a href="#local-6989586621679092953"><span class="hs-identifier hs-var hs-var">msg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;No element satisfied the predicate: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679092949"><span class="hs-identifier hs-var">txt</span></a></span><span>
+</span><span id="line-112"></span><span>      </span><span id="local-6989586621679092951"><span class="annot"><span class="annottext">err :: RefineException
+</span><a href="#local-6989586621679092951"><span class="hs-identifier hs-var hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TypeRep -&gt; Text -&gt; RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#RefineOtherException"><span class="hs-identifier hs-var">RefineOtherException</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy p -&gt; TypeRep
+forall {k} (proxy :: k -&gt; *) (a :: k).
+Typeable a =&gt;
+proxy a -&gt; TypeRep
+</span><span class="hs-identifier hs-var">Ty.typeRep</span></span><span> </span><span class="annot"><span class="annottext">Proxy p
+</span><a href="#local-6989586621679092952"><span class="hs-identifier hs-var">proxy</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text -&gt; Text
+</span><span class="hs-identifier hs-var">LT.toStrict</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679092953"><span class="hs-identifier hs-var">msg</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-113"></span><span>
+</span><span id="line-114"></span><span class="annot"><span class="hs-comment">-- | @since 0.1.0.0</span></span><span>
+</span><span id="line-115"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679092777"><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092777"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word8</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#Any"><span class="hs-identifier hs-type">Any</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092777"><span class="hs-identifier hs-type">p</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-116"></span><span>  </span><span id="local-6989586621679092965"><span class="annot"><span class="annottext">validate :: Proxy (Any p) -&gt; ByteString -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var hs-var hs-var hs-var">validate</span></a></span></span><span> </span><span class="annot"><span class="annottext">Proxy (Any p)
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679092966"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679092966"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RefineException
+-&gt; (Word8 -&gt; Maybe RefineException)
+-&gt; ByteString
+-&gt; Maybe RefineException
+forall b. b -&gt; (Word8 -&gt; Maybe b) -&gt; ByteString -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#anyByteStringSatisfies"><span class="hs-identifier hs-var">anyByteStringSatisfies</span></a></span><span> </span><span class="annot"><span class="annottext">RefineException
+</span><a href="#local-6989586621679092968"><span class="hs-identifier hs-var">err</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy p -&gt; Word8 -&gt; Maybe RefineException
+forall {k} (p :: k) x.
+Predicate p x =&gt;
+Proxy p -&gt; x -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var">validate</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy p
+</span><a href="#local-6989586621679092969"><span class="hs-identifier hs-var">proxy</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679092966"><span class="hs-identifier hs-var">bs</span></a></span><span>
+</span><span id="line-117"></span><span>    </span><span class="hs-keyword">where</span><span>
+</span><span id="line-118"></span><span>      </span><span id="local-6989586621679092969"><span class="annot"><span class="annottext">proxy :: Proxy p
+</span><a href="#local-6989586621679092969"><span class="hs-identifier hs-var hs-var">proxy</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall t. Proxy t
+forall {k} (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679092777"><span class="hs-identifier hs-type">p</span></a></span><span>
+</span><span id="line-119"></span><span>      </span><span id="local-6989586621679092971"><span class="annot"><span class="annottext">prefix :: Text
+</span><a href="#local-6989586621679092971"><span class="hs-identifier hs-var hs-var">prefix</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;No element satisfied the predicate: &quot;</span></span><span>
+</span><span id="line-120"></span><span>      </span><span id="local-6989586621679092968"><span class="annot"><span class="annottext">err :: RefineException
+</span><a href="#local-6989586621679092968"><span class="hs-identifier hs-var hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TypeRep -&gt; Text -&gt; RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#RefineOtherException"><span class="hs-identifier hs-var">RefineOtherException</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy p -&gt; TypeRep
+forall {k} (proxy :: k -&gt; *) (a :: k).
+Typeable a =&gt;
+proxy a -&gt; TypeRep
+</span><span class="hs-identifier hs-var">Ty.typeRep</span></span><span> </span><span class="annot"><span class="annottext">Proxy p
+</span><a href="#local-6989586621679092969"><span class="hs-identifier hs-var">proxy</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679092971"><span class="hs-identifier hs-var">prefix</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679092972"><span class="hs-identifier hs-var">msg</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-121"></span><span>      </span><span id="local-6989586621679092972"><span class="annot"><span class="annottext">msg :: Text
+</span><a href="#local-6989586621679092972"><span class="hs-identifier hs-var hs-var">msg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Text
+</span><a href="Refined.Extras.Predicates.Foldable.html#decodeUtf8Lenient"><span class="hs-identifier hs-var">decodeUtf8Lenient</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679092966"><span class="hs-identifier hs-var">bs</span></a></span><span>
+</span><span id="line-122"></span><span>
+</span><span id="line-123"></span><span class="annot"><span class="hs-comment">-- | @since 0.1.0.0</span></span><span>
+</span><span id="line-124"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621679092780"><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092780"><span class="hs-identifier hs-type">p</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Word8</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Predicate"><span class="hs-identifier hs-type">Predicate</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#Any"><span class="hs-identifier hs-type">Any</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092780"><span class="hs-identifier hs-type">p</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">BSL.ByteString</span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-125"></span><span>  </span><span id="local-6989586621679092984"><span class="annot"><span class="annottext">validate :: Proxy (Any p) -&gt; ByteString -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var hs-var hs-var hs-var">validate</span></a></span></span><span> </span><span class="annot"><span class="annottext">Proxy (Any p)
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621679092985"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679092985"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">RefineException
+-&gt; (Word8 -&gt; Maybe RefineException)
+-&gt; ByteString
+-&gt; Maybe RefineException
+forall b. b -&gt; (Word8 -&gt; Maybe b) -&gt; ByteString -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#anyLazyByteStringSatisfies"><span class="hs-identifier hs-var">anyLazyByteStringSatisfies</span></a></span><span> </span><span class="annot"><span class="annottext">RefineException
+</span><a href="#local-6989586621679092987"><span class="hs-identifier hs-var">err</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy p -&gt; Word8 -&gt; Maybe RefineException
+forall {k} (p :: k) x.
+Predicate p x =&gt;
+Proxy p -&gt; x -&gt; Maybe RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#validate"><span class="hs-identifier hs-var">validate</span></a></span><span> </span><span class="annot"><span class="annottext">Proxy p
+</span><a href="#local-6989586621679092988"><span class="hs-identifier hs-var">proxy</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679092985"><span class="hs-identifier hs-var">bs</span></a></span><span>
+</span><span id="line-126"></span><span>    </span><span class="hs-keyword">where</span><span>
+</span><span id="line-127"></span><span>      </span><span id="local-6989586621679092988"><span class="annot"><span class="annottext">proxy :: Proxy p
+</span><a href="#local-6989586621679092988"><span class="hs-identifier hs-var hs-var">proxy</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall t. Proxy t
+forall {k} (t :: k). Proxy t
+</span><span class="hs-identifier hs-var">Proxy</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621679092780"><span class="hs-identifier hs-type">p</span></a></span><span>
+</span><span id="line-128"></span><span>      </span><span id="local-6989586621679092990"><span class="annot"><span class="annottext">prefix :: Text
+</span><a href="#local-6989586621679092990"><span class="hs-identifier hs-var hs-var">prefix</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;No element satisfied the predicate: &quot;</span></span><span>
+</span><span id="line-129"></span><span>      </span><span id="local-6989586621679092987"><span class="annot"><span class="annottext">err :: RefineException
+</span><a href="#local-6989586621679092987"><span class="hs-identifier hs-var hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TypeRep -&gt; Text -&gt; RefineException
+</span><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#RefineOtherException"><span class="hs-identifier hs-var">RefineOtherException</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Proxy p -&gt; TypeRep
+forall {k} (proxy :: k -&gt; *) (a :: k).
+Typeable a =&gt;
+proxy a -&gt; TypeRep
+</span><span class="hs-identifier hs-var">Ty.typeRep</span></span><span> </span><span class="annot"><span class="annottext">Proxy p
+</span><a href="#local-6989586621679092988"><span class="hs-identifier hs-var">proxy</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679092990"><span class="hs-identifier hs-var">prefix</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><span class="hs-operator hs-var">&lt;&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621679092991"><span class="hs-identifier hs-var">msg</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-130"></span><span>      </span><span id="local-6989586621679092991"><span class="annot"><span class="annottext">msg :: Text
+</span><a href="#local-6989586621679092991"><span class="hs-identifier hs-var hs-var">msg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Text
+</span><a href="Refined.Extras.Predicates.Foldable.html#decodeUtf8Lenient"><span class="hs-identifier hs-var">decodeUtf8Lenient</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ByteString -&gt; ByteString
+</span><span class="hs-identifier hs-var">BSL.toStrict</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621679092985"><span class="hs-identifier hs-var">bs</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-131"></span><span>
+</span><span id="line-132"></span><span class="hs-comment">-- | Predicate for no elements satisfying a predicate.</span><span>
+</span><span id="line-133"></span><span class="hs-comment">--</span><span>
+</span><span id="line-134"></span><span class="hs-comment">-- ==== __Examples__</span><span>
+</span><span id="line-135"></span><span class="hs-comment">-- &gt;&gt;&gt; validate @(None Negative) Proxy [3,4,5]</span><span>
+</span><span id="line-136"></span><span class="hs-comment">-- Nothing</span><span>
+</span><span id="line-137"></span><span class="hs-comment">--</span><span>
+</span><span id="line-138"></span><span class="hs-comment">-- &gt;&gt;&gt; showRefineException &lt;$&gt; validate @(None Negative) Proxy [3,-1,2,5]</span><span>
+</span><span id="line-139"></span><span class="hs-comment">-- Just &quot;RefineNotException (Not * (Any (LessThan 0)))&quot;</span><span>
+</span><span id="line-140"></span><span class="hs-comment">--</span><span>
+</span><span id="line-141"></span><span class="hs-comment">-- @since 0.1.0.0</span><span>
+</span><span id="line-142"></span><span class="hs-keyword">type</span><span> </span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#None"><span class="hs-identifier hs-type">None</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Type</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Type</span></span><span>
+</span><span id="line-143"></span><span class="hs-keyword">type</span><span> </span><span id="None"><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#None"><span class="hs-identifier hs-var">None</span></a></span></span><span> </span><span id="local-6989586621679092993"><span class="annot"><a href="#local-6989586621679092993"><span class="hs-identifier hs-type">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="file:///nix/store/nh07hlqqvgm5wh7yxyhkr3gmnj23rf8l-refined-0.8.2-doc/share/doc/refined-0.8.2/html/src/Refined.html#Not"><span class="hs-identifier hs-type">Not</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#Any"><span class="hs-identifier hs-type">Any</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092993"><span class="hs-identifier hs-type">p</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-144"></span><span>
+</span><span id="line-145"></span><span id="local-6989586621679092732"><span id="local-6989586621679092733"><span id="local-6989586621679092734"><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#allFoldableSatisfies"><span class="hs-identifier hs-type">allFoldableSatisfies</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Foldable</span></span><span> </span><span class="annot"><a href="#local-6989586621679092732"><span class="hs-identifier hs-type">f</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679092733"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092734"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092732"><span class="hs-identifier hs-type">f</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092733"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092734"><span class="hs-identifier hs-type">b</span></a></span></span></span></span><span>
+</span><span id="line-146"></span><span id="allFoldableSatisfies"><span class="annot"><span class="annottext">allFoldableSatisfies :: forall (f :: * -&gt; *) a b.
+Foldable f =&gt;
+(a -&gt; Maybe b) -&gt; f a -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#allFoldableSatisfies"><span class="hs-identifier hs-var hs-var">allFoldableSatisfies</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; f a -&gt; Maybe b)
+-&gt; (a -&gt; Maybe b) -&gt; f a -&gt; Maybe b
+forall a b c d.
+((a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d) -&gt; (a -&gt; Maybe b) -&gt; d
+</span><a href="Refined.Extras.Predicates.Foldable.html#allSatisfies"><span class="hs-identifier hs-var">allSatisfies</span></a></span><span> </span><span class="annot"><span class="annottext">(a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; f a -&gt; Maybe b
+forall a b. (a -&gt; b -&gt; b) -&gt; b -&gt; f a -&gt; b
+forall (t :: * -&gt; *) a b.
+Foldable t =&gt;
+(a -&gt; b -&gt; b) -&gt; b -&gt; t a -&gt; b
+</span><span class="hs-identifier hs-var">foldr</span></span><span>
+</span><span id="line-147"></span><span>
+</span><span id="line-148"></span><span id="local-6989586621679092740"><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#allTextSatisfies"><span class="hs-identifier hs-type">allTextSatisfies</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092740"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092740"><span class="hs-identifier hs-type">b</span></a></span></span><span>
+</span><span id="line-149"></span><span id="allTextSatisfies"><span class="annot"><span class="annottext">allTextSatisfies :: forall b. (Char -&gt; Maybe b) -&gt; Text -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#allTextSatisfies"><span class="hs-identifier hs-var hs-var">allTextSatisfies</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Char -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; Text -&gt; Maybe b)
+-&gt; (Char -&gt; Maybe b) -&gt; Text -&gt; Maybe b
+forall a b c d.
+((a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d) -&gt; (a -&gt; Maybe b) -&gt; d
+</span><a href="Refined.Extras.Predicates.Foldable.html#allSatisfies"><span class="hs-identifier hs-var">allSatisfies</span></a></span><span> </span><span class="annot"><span class="annottext">(Char -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; Text -&gt; Maybe b
+forall a. (Char -&gt; a -&gt; a) -&gt; a -&gt; Text -&gt; a
+</span><span class="hs-identifier hs-var">T.foldr</span></span><span>
+</span><span id="line-150"></span><span>
+</span><span id="line-151"></span><span id="local-6989586621679092744"><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#allLazyTextSatisfies"><span class="hs-identifier hs-type">allLazyTextSatisfies</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092744"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LT.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092744"><span class="hs-identifier hs-type">b</span></a></span></span><span>
+</span><span id="line-152"></span><span id="allLazyTextSatisfies"><span class="annot"><span class="annottext">allLazyTextSatisfies :: forall b. (Char -&gt; Maybe b) -&gt; Text -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#allLazyTextSatisfies"><span class="hs-identifier hs-var hs-var">allLazyTextSatisfies</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Char -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; Text -&gt; Maybe b)
+-&gt; (Char -&gt; Maybe b) -&gt; Text -&gt; Maybe b
+forall a b c d.
+((a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d) -&gt; (a -&gt; Maybe b) -&gt; d
+</span><a href="Refined.Extras.Predicates.Foldable.html#allSatisfies"><span class="hs-identifier hs-var">allSatisfies</span></a></span><span> </span><span class="annot"><span class="annottext">(Char -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; Text -&gt; Maybe b
+forall a. (Char -&gt; a -&gt; a) -&gt; a -&gt; Text -&gt; a
+</span><span class="hs-identifier hs-var">LT.foldr</span></span><span>
+</span><span id="line-153"></span><span>
+</span><span id="line-154"></span><span id="local-6989586621679092748"><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#allByteStringSatisfies"><span class="hs-identifier hs-type">allByteStringSatisfies</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Word8</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092748"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092748"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-155"></span><span id="allByteStringSatisfies"><span class="annot"><span class="annottext">allByteStringSatisfies :: forall a. (Word8 -&gt; Maybe a) -&gt; ByteString -&gt; Maybe a
+</span><a href="Refined.Extras.Predicates.Foldable.html#allByteStringSatisfies"><span class="hs-identifier hs-var hs-var">allByteStringSatisfies</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Word8 -&gt; Maybe a -&gt; Maybe a) -&gt; Maybe a -&gt; ByteString -&gt; Maybe a)
+-&gt; (Word8 -&gt; Maybe a) -&gt; ByteString -&gt; Maybe a
+forall a b c d.
+((a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d) -&gt; (a -&gt; Maybe b) -&gt; d
+</span><a href="Refined.Extras.Predicates.Foldable.html#allSatisfies"><span class="hs-identifier hs-var">allSatisfies</span></a></span><span> </span><span class="annot"><span class="annottext">(Word8 -&gt; Maybe a -&gt; Maybe a) -&gt; Maybe a -&gt; ByteString -&gt; Maybe a
+forall a. (Word8 -&gt; a -&gt; a) -&gt; a -&gt; ByteString -&gt; a
+</span><span class="hs-identifier hs-var">BS.foldr</span></span><span>
+</span><span id="line-156"></span><span>
+</span><span id="line-157"></span><span id="local-6989586621679092752"><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#allLazyByteStringSatisfies"><span class="hs-identifier hs-type">allLazyByteStringSatisfies</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Word8</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092752"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">BSL.ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092752"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-158"></span><span id="allLazyByteStringSatisfies"><span class="annot"><span class="annottext">allLazyByteStringSatisfies :: forall a. (Word8 -&gt; Maybe a) -&gt; ByteString -&gt; Maybe a
+</span><a href="Refined.Extras.Predicates.Foldable.html#allLazyByteStringSatisfies"><span class="hs-identifier hs-var hs-var">allLazyByteStringSatisfies</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Word8 -&gt; Maybe a -&gt; Maybe a) -&gt; Maybe a -&gt; ByteString -&gt; Maybe a)
+-&gt; (Word8 -&gt; Maybe a) -&gt; ByteString -&gt; Maybe a
+forall a b c d.
+((a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d) -&gt; (a -&gt; Maybe b) -&gt; d
+</span><a href="Refined.Extras.Predicates.Foldable.html#allSatisfies"><span class="hs-identifier hs-var">allSatisfies</span></a></span><span> </span><span class="annot"><span class="annottext">(Word8 -&gt; Maybe a -&gt; Maybe a) -&gt; Maybe a -&gt; ByteString -&gt; Maybe a
+forall a. (Word8 -&gt; a -&gt; a) -&gt; a -&gt; ByteString -&gt; a
+</span><span class="hs-identifier hs-var">BSL.foldr</span></span><span>
+</span><span id="line-159"></span><span>
+</span><span id="line-160"></span><span id="local-6989586621679092785"><span id="local-6989586621679092786"><span id="local-6989586621679092787"><span id="local-6989586621679092788"><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#allSatisfies"><span class="hs-identifier hs-type">allSatisfies</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679092785"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092786"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092786"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092787"><span class="hs-identifier hs-type">c</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092788"><span class="hs-identifier hs-type">d</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679092785"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092786"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092788"><span class="hs-identifier hs-type">d</span></a></span></span></span></span></span><span>
+</span><span id="line-161"></span><span id="allSatisfies"><span class="annot"><span class="annottext">allSatisfies :: forall a b c d.
+((a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d) -&gt; (a -&gt; Maybe b) -&gt; d
+</span><a href="Refined.Extras.Predicates.Foldable.html#allSatisfies"><span class="hs-identifier hs-var hs-var">allSatisfies</span></a></span></span><span> </span><span id="local-6989586621679093004"><span class="annot"><span class="annottext">(a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d
+</span><a href="#local-6989586621679093004"><span class="hs-identifier hs-var">foldFn</span></a></span></span><span> </span><span id="local-6989586621679093005"><span class="annot"><span class="annottext">a -&gt; Maybe b
+</span><a href="#local-6989586621679093005"><span class="hs-identifier hs-var">testPred</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d
+</span><a href="#local-6989586621679093004"><span class="hs-identifier hs-var">foldFn</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621679093006"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093006"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679093007"><span class="annot"><span class="annottext">Maybe b
+</span><a href="#local-6989586621679093007"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; Maybe b
+</span><a href="#local-6989586621679093005"><span class="hs-identifier hs-var">testPred</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093006"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe b -&gt; Maybe b -&gt; Maybe b
+forall a. Maybe a -&gt; Maybe a -&gt; Maybe a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><span class="hs-operator hs-var">&lt;|&gt;</span></span><span> </span><span class="annot"><span class="annottext">Maybe b
+</span><a href="#local-6989586621679093007"><span class="hs-identifier hs-var">acc</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe c
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-162"></span><span>
+</span><span id="line-163"></span><span id="local-6989586621679092762"><span id="local-6989586621679092763"><span id="local-6989586621679092764"><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#anyFoldableSatisfies"><span class="hs-identifier hs-type">anyFoldableSatisfies</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Foldable</span></span><span> </span><span class="annot"><a href="#local-6989586621679092762"><span class="hs-identifier hs-type">f</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092763"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679092764"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092763"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092762"><span class="hs-identifier hs-type">f</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679092764"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092763"><span class="hs-identifier hs-type">b</span></a></span></span></span></span><span>
+</span><span id="line-164"></span><span id="anyFoldableSatisfies"><span class="annot"><span class="annottext">anyFoldableSatisfies :: forall (f :: * -&gt; *) b a.
+Foldable f =&gt;
+b -&gt; (a -&gt; Maybe b) -&gt; f a -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#anyFoldableSatisfies"><span class="hs-identifier hs-var hs-var">anyFoldableSatisfies</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; f a -&gt; Maybe b)
+-&gt; b -&gt; (a -&gt; Maybe b) -&gt; f a -&gt; Maybe b
+forall a b c d e.
+((a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d)
+-&gt; c -&gt; (a -&gt; Maybe e) -&gt; d
+</span><a href="Refined.Extras.Predicates.Foldable.html#anySatisfies"><span class="hs-identifier hs-var">anySatisfies</span></a></span><span> </span><span class="annot"><span class="annottext">(a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; f a -&gt; Maybe b
+forall a b. (a -&gt; b -&gt; b) -&gt; b -&gt; f a -&gt; b
+forall (t :: * -&gt; *) a b.
+Foldable t =&gt;
+(a -&gt; b -&gt; b) -&gt; b -&gt; t a -&gt; b
+</span><span class="hs-identifier hs-var">foldr</span></span><span>
+</span><span id="line-165"></span><span>
+</span><span id="line-166"></span><span id="local-6989586621679092771"><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#anyTextSatisfies"><span class="hs-identifier hs-type">anyTextSatisfies</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679092771"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092771"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092771"><span class="hs-identifier hs-type">b</span></a></span></span><span>
+</span><span id="line-167"></span><span id="anyTextSatisfies"><span class="annot"><span class="annottext">anyTextSatisfies :: forall b. b -&gt; (Char -&gt; Maybe b) -&gt; Text -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#anyTextSatisfies"><span class="hs-identifier hs-var hs-var">anyTextSatisfies</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Char -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; Text -&gt; Maybe b)
+-&gt; b -&gt; (Char -&gt; Maybe b) -&gt; Text -&gt; Maybe b
+forall a b c d e.
+((a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d)
+-&gt; c -&gt; (a -&gt; Maybe e) -&gt; d
+</span><a href="Refined.Extras.Predicates.Foldable.html#anySatisfies"><span class="hs-identifier hs-var">anySatisfies</span></a></span><span> </span><span class="annot"><span class="annottext">(Char -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; Text -&gt; Maybe b
+forall a. (Char -&gt; a -&gt; a) -&gt; a -&gt; Text -&gt; a
+</span><span class="hs-identifier hs-var">T.foldr</span></span><span>
+</span><span id="line-168"></span><span>
+</span><span id="line-169"></span><span id="local-6989586621679092775"><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#anyLazyTextSatisfies"><span class="hs-identifier hs-type">anyLazyTextSatisfies</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679092775"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Char</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092775"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">LT.Text</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092775"><span class="hs-identifier hs-type">b</span></a></span></span><span>
+</span><span id="line-170"></span><span id="anyLazyTextSatisfies"><span class="annot"><span class="annottext">anyLazyTextSatisfies :: forall b. b -&gt; (Char -&gt; Maybe b) -&gt; Text -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#anyLazyTextSatisfies"><span class="hs-identifier hs-var hs-var">anyLazyTextSatisfies</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Char -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; Text -&gt; Maybe b)
+-&gt; b -&gt; (Char -&gt; Maybe b) -&gt; Text -&gt; Maybe b
+forall a b c d e.
+((a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d)
+-&gt; c -&gt; (a -&gt; Maybe e) -&gt; d
+</span><a href="Refined.Extras.Predicates.Foldable.html#anySatisfies"><span class="hs-identifier hs-var">anySatisfies</span></a></span><span> </span><span class="annot"><span class="annottext">(Char -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; Text -&gt; Maybe b
+forall a. (Char -&gt; a -&gt; a) -&gt; a -&gt; Text -&gt; a
+</span><span class="hs-identifier hs-var">LT.foldr</span></span><span>
+</span><span id="line-171"></span><span>
+</span><span id="line-172"></span><span id="local-6989586621679092778"><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#anyByteStringSatisfies"><span class="hs-identifier hs-type">anyByteStringSatisfies</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679092778"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Word8</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092778"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092778"><span class="hs-identifier hs-type">b</span></a></span></span><span>
+</span><span id="line-173"></span><span id="anyByteStringSatisfies"><span class="annot"><span class="annottext">anyByteStringSatisfies :: forall b. b -&gt; (Word8 -&gt; Maybe b) -&gt; ByteString -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#anyByteStringSatisfies"><span class="hs-identifier hs-var hs-var">anyByteStringSatisfies</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Word8 -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; ByteString -&gt; Maybe b)
+-&gt; b -&gt; (Word8 -&gt; Maybe b) -&gt; ByteString -&gt; Maybe b
+forall a b c d e.
+((a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d)
+-&gt; c -&gt; (a -&gt; Maybe e) -&gt; d
+</span><a href="Refined.Extras.Predicates.Foldable.html#anySatisfies"><span class="hs-identifier hs-var">anySatisfies</span></a></span><span> </span><span class="annot"><span class="annottext">(Word8 -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; ByteString -&gt; Maybe b
+forall a. (Word8 -&gt; a -&gt; a) -&gt; a -&gt; ByteString -&gt; a
+</span><span class="hs-identifier hs-var">BS.foldr</span></span><span>
+</span><span id="line-174"></span><span>
+</span><span id="line-175"></span><span id="local-6989586621679092781"><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#anyLazyByteStringSatisfies"><span class="hs-identifier hs-type">anyLazyByteStringSatisfies</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621679092781"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Word8</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092781"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">BSL.ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092781"><span class="hs-identifier hs-type">b</span></a></span></span><span>
+</span><span id="line-176"></span><span id="anyLazyByteStringSatisfies"><span class="annot"><span class="annottext">anyLazyByteStringSatisfies :: forall b. b -&gt; (Word8 -&gt; Maybe b) -&gt; ByteString -&gt; Maybe b
+</span><a href="Refined.Extras.Predicates.Foldable.html#anyLazyByteStringSatisfies"><span class="hs-identifier hs-var hs-var">anyLazyByteStringSatisfies</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">((Word8 -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; ByteString -&gt; Maybe b)
+-&gt; b -&gt; (Word8 -&gt; Maybe b) -&gt; ByteString -&gt; Maybe b
+forall a b c d e.
+((a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d)
+-&gt; c -&gt; (a -&gt; Maybe e) -&gt; d
+</span><a href="Refined.Extras.Predicates.Foldable.html#anySatisfies"><span class="hs-identifier hs-var">anySatisfies</span></a></span><span> </span><span class="annot"><span class="annottext">(Word8 -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe b -&gt; ByteString -&gt; Maybe b
+forall a. (Word8 -&gt; a -&gt; a) -&gt; a -&gt; ByteString -&gt; a
+</span><span class="hs-identifier hs-var">BSL.foldr</span></span><span>
+</span><span id="line-177"></span><span>
+</span><span id="line-178"></span><span id="local-6989586621679092811"><span id="local-6989586621679092812"><span id="local-6989586621679092813"><span id="local-6989586621679092814"><span id="local-6989586621679092815"><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#anySatisfies"><span class="hs-identifier hs-type">anySatisfies</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679092811"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092812"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092812"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092813"><span class="hs-identifier hs-type">c</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092814"><span class="hs-identifier hs-type">d</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092813"><span class="hs-identifier hs-type">c</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679092811"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Maybe</span></span><span> </span><span class="annot"><a href="#local-6989586621679092815"><span class="hs-identifier hs-type">e</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621679092814"><span class="hs-identifier hs-type">d</span></a></span></span></span></span></span></span><span>
+</span><span id="line-179"></span><span id="anySatisfies"><span class="annot"><span class="annottext">anySatisfies :: forall a b c d e.
+((a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d)
+-&gt; c -&gt; (a -&gt; Maybe e) -&gt; d
+</span><a href="Refined.Extras.Predicates.Foldable.html#anySatisfies"><span class="hs-identifier hs-var hs-var">anySatisfies</span></a></span></span><span> </span><span id="local-6989586621679093011"><span class="annot"><span class="annottext">(a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d
+</span><a href="#local-6989586621679093011"><span class="hs-identifier hs-var">foldFn</span></a></span></span><span> </span><span id="local-6989586621679093012"><span class="annot"><span class="annottext">c
+</span><a href="#local-6989586621679093012"><span class="hs-identifier hs-var">defErr</span></a></span></span><span> </span><span id="local-6989586621679093013"><span class="annot"><span class="annottext">a -&gt; Maybe e
+</span><a href="#local-6989586621679093013"><span class="hs-identifier hs-var">testPred</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(a -&gt; Maybe b -&gt; Maybe b) -&gt; Maybe c -&gt; d
+</span><a href="#local-6989586621679093011"><span class="hs-identifier hs-var">foldFn</span></a></span><span> </span><span class="annot"><span class="annottext">a -&gt; Maybe b -&gt; Maybe b
+</span><a href="#local-6989586621679093014"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">c -&gt; Maybe c
+forall a. a -&gt; Maybe a
+</span><span class="hs-identifier hs-var">Just</span></span><span> </span><span class="annot"><span class="annottext">c
+</span><a href="#local-6989586621679093012"><span class="hs-identifier hs-var">defErr</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-180"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-181"></span><span>    </span><span id="local-6989586621679093014"><span class="annot"><span class="annottext">f :: a -&gt; Maybe b -&gt; Maybe b
+</span><a href="#local-6989586621679093014"><span class="hs-identifier hs-var hs-var">f</span></a></span></span><span> </span><span id="local-6989586621679093015"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093015"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span id="local-6989586621679093016"><span class="annot"><span class="annottext">Maybe b
+</span><a href="#local-6989586621679093016"><span class="hs-identifier hs-var">acc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">a -&gt; Maybe e
+</span><a href="#local-6989586621679093013"><span class="hs-identifier hs-var">testPred</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621679093015"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-182"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">Just</span></span><span> </span><span class="annot"><span class="annottext">e
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe b
+</span><a href="#local-6989586621679093016"><span class="hs-identifier hs-var">acc</span></a></span><span>
+</span><span id="line-183"></span><span>      </span><span class="annot"><span class="annottext">Maybe e
+</span><span class="hs-identifier hs-var">Nothing</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe b
+forall a. Maybe a
+</span><span class="hs-identifier hs-var">Nothing</span></span><span>
+</span><span id="line-184"></span><span>
+</span><span id="line-185"></span><span class="hs-comment">-- | Because text used by GHC &lt; 9.4 does not have decodeUtf8Lenient,</span><span>
+</span><span id="line-186"></span><span class="hs-comment">-- apparently.</span><span>
+</span><span id="line-187"></span><span class="annot"><a href="Refined.Extras.Predicates.Foldable.html#decodeUtf8Lenient"><span class="hs-identifier hs-type">decodeUtf8Lenient</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ByteString</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Text</span></span><span>
+</span><span id="line-188"></span><span id="decodeUtf8Lenient"><span class="annot"><span class="annottext">decodeUtf8Lenient :: ByteString -&gt; Text
+</span><a href="Refined.Extras.Predicates.Foldable.html#decodeUtf8Lenient"><span class="hs-identifier hs-var hs-var">decodeUtf8Lenient</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">OnDecodeError -&gt; ByteString -&gt; Text
+</span><span class="hs-identifier hs-var">TEnc.decodeUtf8With</span></span><span> </span><span class="annot"><span class="annottext">OnDecodeError
+</span><span class="hs-identifier hs-var">TEncError.lenientDecode</span></span><span>
+</span><span id="line-189"></span></pre></body></html>
