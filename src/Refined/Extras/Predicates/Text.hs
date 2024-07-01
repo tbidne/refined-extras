@@ -177,20 +177,20 @@ instance (KnownSymbol c) => Predicate (SymEqualTo c) LT.Text where
 --
 -- 1. Outlaw 'Word8'/'Data.ByteString.ByteString' instances completely.
 -- 2. Provide the naive @'C.isAlpha' . 'BS.w2c'@ implementation for 'Word8'.
--- 3. Implement 'Data.ByteString.ByteString' instances by first converting to 'Text', i.e.,
---    do not use its underlying fold.
+-- 3. Implement 'Data.ByteString.ByteString' instances by first converting to
+--    'Text', i.e., do not use its underlying fold.
 -- 4. Provide 'Word8' instances only when they coincide with 'Char' (i.e.
---    ascii/latin1 predicates). In this case, 'Data.ByteString.ByteString' works as expected;
---    that is, we can make assertions based on the underlying bytes, but nothing
---    that requires a specific encoding, and we do not get surprised by
--- 'Text'/'Data.ByteString.ByteString' mismatches.
+--    ascii/latin1 predicates). In this case, 'Data.ByteString.ByteString'
+--    works as expected; that is, we can make assertions based on the
+--    underlying bytes, but nothing that requires a specific encoding, and we
+--    do not get surprised by 'Text'/'Data.ByteString.ByteString' mismatches.
 --
 -- Of these, only one and four are reasonable. Two is out because it can have
 -- confusing semantics (illustrated above).
 --
 -- Three is rejected because the API is no longer consistent, and we
--- have to arbitrarily assume the 'Data.ByteString.ByteString' shares its 'Text' encoding
--- (i.e. UTF-8).
+-- have to arbitrarily assume the 'Data.ByteString.ByteString' shares its
+-- 'Text' encoding (i.e. UTF-8).
 --
 -- One is defensible, but we choose option four, reasoning that it could be
 -- useful to assert that a given bytestring contains only ascii numbers or
