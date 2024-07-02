@@ -4,9 +4,17 @@
 --
 -- @since 0.1.0.0
 module Refined.Extras.Unsafe
-  ( unsafeLiftR,
+  ( -- * Lifting functions
+
+    -- ** Run-time errors
+    unsafeLiftR,
     unsafeLiftR2,
     unsafeLiftR3,
+
+    -- ** No errors
+    reallyUnsafeLiftR,
+    reallyUnsafeLiftR2,
+    reallyUnsafeLiftR3,
   )
 where
 
@@ -38,6 +46,20 @@ unsafeLiftR ::
   Refined p b
 unsafeLiftR f = RUnsafe.unsafeRefine . f . R.unrefine
 
+-- | Like 'unsafeLiftR', except the invariant is not checked at all.
+-- Intended for when we __know__ a function preserves the refinement (e.g.
+-- addition of positive integers) and we do not want to perform the
+-- refinement again for performance reasons.
+--
+-- __WARNING: This function can break invariants. Exercise restraint!__
+--
+-- @since 0.1.0.0
+reallyUnsafeLiftR ::
+  (a -> b) ->
+  Refined p a ->
+  Refined p b
+reallyUnsafeLiftR f = RUnsafe.reallyUnsafeRefine . f . R.unrefine
+
 -- | Lifts a binary function onto 'Refined', dying with an error if the
 -- predicate is not preserved. Intended for when we __know__ a function
 -- preserves the refinement (e.g. addition of positive integers).
@@ -56,6 +78,24 @@ unsafeLiftR2 ::
   Refined p b ->
   Refined p c
 unsafeLiftR2 f (MkRefined x) = RUnsafe.unsafeRefine . f x . R.unrefine
+
+-- | Like 'unsafeLiftR2', except the invariant is not checked at all.
+-- Intended for when we __know__ a function preserves the refinement (e.g.
+-- addition of positive integers) and we do not want to perform the
+-- refinement again for performance reasons.
+--
+-- __WARNING: This function can break invariants. Exercise restraint!__
+--
+-- @since 0.1.0.0
+reallyUnsafeLiftR2 ::
+  (a -> b -> c) ->
+  Refined p a ->
+  Refined p b ->
+  Refined p c
+reallyUnsafeLiftR2 f (MkRefined x) =
+  RUnsafe.reallyUnsafeRefine
+    . f x
+    . R.unrefine
 
 -- | Lifts a ternary function onto 'Refined', dying with an error if the
 -- predicate is not preserved. Intended for when we __know__ a function
@@ -77,3 +117,22 @@ unsafeLiftR3 ::
   Refined p d
 unsafeLiftR3 f (MkRefined x) (MkRefined y) =
   RUnsafe.unsafeRefine . f x y . R.unrefine
+
+-- | Like 'unsafeLiftR3', except the invariant is not checked at all.
+-- Intended for when we __know__ a function preserves the refinement (e.g.
+-- addition of positive integers) and we do not want to perform the
+-- refinement again for performance reasons.
+--
+-- __WARNING: This function can break invariants. Exercise restraint!__
+--
+-- @since 0.1.0.0
+reallyUnsafeLiftR3 ::
+  (a -> b -> c -> d) ->
+  Refined p a ->
+  Refined p b ->
+  Refined p c ->
+  Refined p d
+reallyUnsafeLiftR3 f (MkRefined x) (MkRefined y) =
+  RUnsafe.reallyUnsafeRefine
+    . f x y
+    . R.unrefine
