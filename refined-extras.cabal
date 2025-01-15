@@ -22,9 +22,8 @@ description:
   @refined-extras@ provides extra functionality for the [refined](https://hackage.haskell.org/package/refined) package.
 
 category:           Refined Types
-extra-source-files:
-  CHANGELOG.md
-  README.md
+extra-source-files: README.md
+extra-doc-files:    CHANGELOG.md
 
 source-repository head
   type:     git
