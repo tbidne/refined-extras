@@ -11,6 +11,7 @@ tested-with:
    || ==9.6.5
    || ==9.8.1
    || ==9.10.1
+   || ==9.12.1
 
 copyright:          2021-2025 Thomas Bidne
 author:             Thomas Bidne
@@ -66,7 +67,7 @@ library
     Refined.Extras.Utils
 
   build-depends:
-    , base          >=4.14.0.0  && <4.21
+    , base          >=4.14.0.0  && <4.22
     , bytestring    >=0.10.12.0 && <0.13
     , refined       >=0.6       && <0.9
     , text          >=1.2.3.2   && <2.2
@@ -109,7 +110,7 @@ test-suite props
   build-depends:
     , base
     , bytestring
-    , hedgehog        >=1.0.2   && <1.5
+    , hedgehog        >=1.0.2   && <1.6
     , refined
     , refined-extras
     , tasty
@@ -125,7 +126,7 @@ test-suite doctest
   main-is:        Main.hs
   build-depends:
     , base
-    , doctest    >=0.16.3 && <0.23
+    , doctest    >=0.16.3 && <0.24
     , env-guard  ^>=0.2
 
   hs-source-dirs: test/doctest
